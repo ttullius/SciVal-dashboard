@@ -52,7 +52,7 @@ load_file <- function(path) {
                                collectNames = FALSE, nodes = getNodeSet(my_xml, "//name"))
     
     df_SciValMetric <- bind_cols(df_names, df_id, df_metrics)
-    colnames(df_SciValMetric) <- c("name", "ID", "metric", metric_name)
+    colnames(df_SciValMetric) <- c("name", "id", "metric", metric_name)
     
     df_SciValMetric <- as_tibble(df_SciValMetric)
     
@@ -97,7 +97,7 @@ load_file <- function(path) {
       df_allYearSciValMetric <- bind_cols(df_names, df_id, df_years)
     
       colnames(df_allYearSciValMetric, do.NULL = TRUE)
-      colnames(df_allYearSciValMetric) <- c("name", "ID", df_dataSource$metricStartYear:df_dataSource$metricEndYear)
+      colnames(df_allYearSciValMetric) <- c("name", "id", df_dataSource$metricStartYear:df_dataSource$metricEndYear)
       
       
       df_allYearSciValMetric <- as_tibble(df_allYearSciValMetric)
@@ -116,7 +116,7 @@ load_file <- function(path) {
         full_df_metric <- df_metric_list[[1]] %>% select(-metric, -name)
       }
       
-      full_df_metric$ID <- as.double(full_df_metric$ID)
+      full_df_metric$id <- as.double(full_df_metric$id)
       return(full_df_metric)
       
     }
@@ -135,7 +135,7 @@ load_file <- function(path) {
         #%>% select(-metric, -name)
       }
       
-      full_df_all_years_metric$ID <- as.double(full_df_all_years_metric$ID)
+      full_df_all_years_metric$id <- as.double(full_df_all_years_metric$id)
       return(full_df_all_years_metric)
       
     }
@@ -144,7 +144,7 @@ load_file <- function(path) {
      #######################  function to produce a list of Scopus ID's from the trainee metadata CSV that is read in      #####################################  
     
     get_ID_list <- function(trainee_list)    {
-      ID_list <- trainee_list %>% pull(ID) %>% paste(collapse =",")
+      ID_list <- trainee_list %>% pull(id) %>% paste(collapse =",")
       
     }
     
