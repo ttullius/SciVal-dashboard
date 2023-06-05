@@ -1,3 +1,7 @@
+
+
+### this app works with new format spreadsheet input files.  ###############
+
 # Load packages ----
 
 library(shiny)
@@ -41,7 +45,7 @@ ui <- dashboardPage(
   dashboardSidebar(
   
       fileInput("file1",
-                "Choose CSV File with Trainee metadata",
+                label = h3("Choose CSV File with trainee metadata:"),
                 accept = ".csv"
       ),
       
@@ -55,7 +59,7 @@ ui <- dashboardPage(
       
       tags$hr(),
       
-      checkboxGroupInput("checkGroup", label = h3("Choose jobs for 'years out' plots"), 
+      checkboxGroupInput("checkGroup", label = h3("Choose jobs to compare for 'years out' plots:"), 
                          choices = list("Academia" = "Academia", "Academia (non-faculty)" = "Academia (non-faculty)", "Industry" = "Industry", "Research Institute" = "Research Institute", "Government Lab" = "Government Lab", "Entrepreneur" = "Entrepreneur"), 
                          selected = "Academia"
        ),
@@ -86,7 +90,7 @@ ui <- dashboardPage(
           infoBoxOutput("U_fellow"),
           
       ),
-          tags$hr(),
+          #tags$hr(),
       
       fluidRow(
         
@@ -98,24 +102,49 @@ ui <- dashboardPage(
           
         ),
       
+      tags$hr(),
+    
       fluidRow(
         
       tabsetPanel(
         
         tabPanel("map",h2("Where are our PhD graduates?"),leafletOutput(outputId = "mymap")),
         
-        tabPanel("jobs",h2("What are our PhD graduates doing now?"),plotOutput("plotPie")),
+        tabPanel("jobs",h2("What are our PhD graduates doing now?"),plotOutput("plotJobsPie")),
         
         tabPanel("test", DT::dataTableOutput("testTable")),
         
         tabPanel("trainees", DT::dataTableOutput("traineesMetricsTable")),
         tabPanel("metrics", DT::dataTableOutput("metricsTable")),
-        tabPanel("metrics plots", plotOutput("plotPapersBox"), plotOutput("plotPapers"), plotOutput("plotFWCI"), plotOutput("plotCitations"), plotOutput("plotH_index")),
+        tabPanel("metrics plots", 
+                
+                tags$hr(),
+                 plotOutput("plotPapersBox"), 
+                 
+                tags$hr(),
+                 plotOutput("plotFWCIBox"), 
+                 
+                tags$hr(),
+                 plotOutput("plotCitationsBox"), 
+                 
+                tags$hr(),
+                 plotOutput("plotH_indexBox")),
 
-        tabPanel("papers by year", plotOutput("plotPapers_all_years")),
+        tabPanel("papers by year", 
+                 
+                 tags$hr(),
+                 
+                 plotOutput("plotPapers_all_years")),
         
-        #tabPanel("years out", DT::dataTableOutput("yearsOutTable")),
-        tabPanel("years out plots", plotOutput("plotYearsOutPapersAveraged"), plotOutput("plotYearsOutPapers")),
+        tabPanel("years out plots", 
+                 
+                 tags$hr(),
+                 
+                 plotOutput("plotYearsOutPapersAveraged"), 
+                 
+                 tags$hr(),
+                 
+                 plotOutput("plotYearsOutPapers")),
         
        ),
   )))
@@ -125,8 +154,6 @@ ui <- dashboardPage(
 # Define server logic  ----
 
 server <- function(input, output) {
-  
-  #output$value <- renderPrint({ input$checkGroup })
   
   
 # Define the color for  graduates' jobs  ----
@@ -139,9 +166,9 @@ server <- function(input, output) {
 # create the map  ----
   
   output$mymap <- renderLeaflet({
-    leaflet(data_locations) %>% 
+    leaflet(data_locations) |> 
       setView(lng = -99, lat = 45, zoom = 2)  %>% #setting the view over ~ center of North America
-      addTiles() %>% 
+      addTiles() |> 
       #addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(job), label = ~as.character(paste0("Job: ", sep = " ", job)), color = ~pal2(job), fillOpacity = 0.5)
       #addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(paste0(company, sep = ", ",city)), label = ~as.character(job), color = ~pal2(job), fillOpacity = 0.5)
     addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(paste0(city)), label = ~as.character(job), color = ~pal2(job), fillOpacity = 0.5)
@@ -152,30 +179,39 @@ server <- function(input, output) {
   #########  Use the load_file helper function (from helpers.R file) to load the user-supplied file that contains trainee metadata (Scopus ID, gender, enter date, finish date, job type. etc.)  #####
   
   Trainees <- reactive({
+    
     req(input$file1)
+    
     load_file(input$file1$datapath)
   }) 
   
   ###### produce reactive variables for Ifo Boxes in Dashboard.  ####
   
   trainee_support <- reactive({
-    trainee_support <- Trainees() |> group_by(fellowship) |> summarise(n = n())
+    
+    trainee_support <- Trainees() |> 
+      group_by(fellowship) |> 
+      summarise(n = n())
   })
   
   IGERT_no <- reactive({
-    IGERT_no <- filter(trainee_support(), fellowship == "IGERT")$n
+    IGERT_no <- 
+      filter(trainee_support(), fellowship == "IGERT")$n
   })
   
   T32_no <- reactive({
-    T32_no <- filter(trainee_support(), fellowship == "T32")$n
+    T32_no <- 
+      filter(trainee_support(), fellowship == "T32")$n
   })
   
   GPP_no <- reactive({
-    GPP_no <- filter(trainee_support(), fellowship == "GPP")$n
+    GPP_no <- 
+      filter(trainee_support(), fellowship == "GPP")$n
   })
     
   U_fellow_no <- reactive({
-    U_fellow_no <- filter(trainee_support(), fellowship == "University Fellow")$n
+    U_fellow_no <- 
+      filter(trainee_support(), fellowship == "University Fellow")$n
   })
   
   #metrics_mean <- metrics_df() %>% 
@@ -184,40 +220,45 @@ server <- function(input, output) {
 
   
   time_to_degree_mean <- reactive({
-    time_to_degree_mean <- metrics_df() %>% 
-    summarise(mean_months = mean(months)/12) %>%
-    mutate_if(is.numeric, round, digits = 1)
+    time_to_degree_mean <- 
+      metrics_df() |> 
+      summarise(mean_months = mean(months)/12) |>
+      mutate_if(is.numeric, round, digits = 1)
   })
   
   citations_mean <- reactive({
-    citations_mean <- metrics_df() %>% 
-      summarise(mean_cites = mean(number_of_citations)) %>%
+    citations_mean <- metrics_df() |> 
+      summarise(mean_cites = mean(number_of_citations)) |>
       mutate_if(is.numeric, round, digits = 0)
   })
   
   papers_mean <- reactive({
     all_papers <- papers_years_out_df()
-    total_papers <- all_papers %>%
+    
+    total_papers <- all_papers |>
       summarise(sum(papers, na.rm = TRUE))
+    
     papers_mean <- total_papers/nrow(Trainees())
+    
     papers_mean <- format(round(papers_mean, 1), nsmall = 1)
   })
   
   total_papers <- reactive({
     all_papers <- papers_years_out_df()
-    total_papers <- all_papers %>%
+    
+    total_papers <- all_papers |>
       summarise(sum(papers, na.rm = TRUE))
   })
   
   h_index_mean <- reactive({
-    h_index_mean <- metrics_df() %>% 
-      summarise(mean_h_index = mean(H_index)) %>%
+    h_index_mean <- metrics_df() |> 
+      summarise(mean_h_index = mean(H_index)) |>
       mutate_if(is.numeric, round, digits = 1)
   })
   
   fwci_mean <- reactive({
-    fwci_mean <- metrics_df() %>% 
-      summarise(mean_fwci = mean(FWCI)) %>%
+    fwci_mean <- metrics_df() |> 
+      summarise(mean_fwci = mean(FWCI)) |>
       mutate_if(is.numeric, round, digits = 1)
   })
   
@@ -225,21 +266,24 @@ server <- function(input, output) {
   
   output$PhDs <- renderInfoBox({ 
     infoBox(
-      "BU Bioinformatics PhDs", paste0(num_rows()), icon = icon("user-graduate"),
+      "BU Bioinformatics PhDs", paste0(num_rows()), 
+      icon = icon("user-graduate"),
       color = "yellow"
     )
   })
   
   output$ave_t_to_d <- renderInfoBox({ 
     infoBox(
-      "average time to degree", paste0(time_to_degree_mean(), " years"), icon = icon("person"),
+      "average time to degree", paste0(time_to_degree_mean(), " years"), 
+      icon = icon("person"),
       color = "yellow"
     )
   })
   
   output$total_papers <- renderInfoBox({
     infoBox(
-      "total number of papers", paste0(total_papers()), icon = icon("users"),
+      "total number of papers", paste0(total_papers()), 
+      icon = icon("users"),
       color = "yellow"
     )
   })
@@ -247,7 +291,8 @@ server <- function(input, output) {
   
   output$papers_mean <- renderInfoBox({
     infoBox(
-      "average number of papers", paste0(papers_mean()), icon = icon("person"),
+      "average number of papers", paste0(papers_mean()), 
+      icon = icon("person"),
       color = "yellow"
     )
   })
@@ -255,28 +300,32 @@ server <- function(input, output) {
   
   output$IGERT <- renderInfoBox({
     infoBox(
-      "NSF IGERT fellows", paste0(IGERT_no()), icon = icon("users"),
+      "NSF IGERT fellows", paste0(IGERT_no()), 
+      icon = icon("users"),
       color = "blue"
     )
   })
   
   output$T32 <- renderInfoBox({
     infoBox(
-      "NIH T32 fellows", paste0(T32_no()), icon = icon("users"),
+      "NIH T32 fellows", paste0(T32_no()), 
+      icon = icon("users"),
       color = "blue"
     )
   })
   
   output$GPP <- renderInfoBox({
     infoBox(
-      "NIH GPP fellows", paste0(GPP_no()), icon = icon("users"),
+      "NIH GPP fellows", paste0(GPP_no()), 
+      icon = icon("users"),
       color = "blue"
     )
   })
   
   output$U_fellow <- renderInfoBox({
     infoBox(
-      "University fellows", paste0(U_fellow_no()), icon = icon("users"),
+      "University fellows", paste0(U_fellow_no()), 
+      icon = icon("users"),
       color = "blue"
     )
   })
@@ -284,21 +333,24 @@ server <- function(input, output) {
   
   output$citations_mean <- renderInfoBox({
     infoBox(
-      "average number of citations", paste0(citations_mean()), icon = icon("person"),
+      "average number of citations", paste0(citations_mean()), 
+      icon = icon("person"),
       color = "aqua"
     )
   })
   
   output$h_index_mean <- renderInfoBox({
     infoBox(
-      "average H-index", paste0(h_index_mean()), icon = icon("person"),
+      "average H-index", paste0(h_index_mean()), 
+      icon = icon("person"),
       color = "aqua"
     )
   })
   
   output$fwci_mean <- renderInfoBox({
     infoBox(
-      "average field-weighted citation impact", paste0(fwci_mean()), icon = icon("person"),
+      "average field-weighted citation impact", paste0(fwci_mean()), 
+      icon = icon("person"),
       color = "aqua"
     )
   })
@@ -363,16 +415,23 @@ server <- function(input, output) {
 #######  combine the metrics dataframes, merge with the trainee metadata dataframe that was read in as a CSV, and clean up variable types  ############### 
     
     df_list <- mget(ls(pattern = "full_df"))
-    all_df <- df_list %>% reduce(full_join, by = 'id')
-    metrics_df <- Trainees() %>% inner_join(all_df, by = 'id')
+    
+    all_df <- df_list |> 
+      reduce(full_join, by = 'id')
+    
+    metrics_df <- Trainees() |> 
+      inner_join(all_df, by = 'id')
     
     factor_list <- c('id', 'enter_date', 'finish', 'gender', 'fellowship', 'job')
-    metrics_df <- metrics_df %>% mutate(across(factor_list, ~as.factor(.)))
+    metrics_df <- metrics_df |> 
+      mutate(across(factor_list, ~as.factor(.)))
     
     double_list <- c('number_of_papers', 'number_of_citations', 'FWCI', 'H_index')
-    metrics_df <- metrics_df %>% mutate(across(double_list, ~as.double(.)))
+    metrics_df <- metrics_df |> 
+      mutate(across(double_list, ~as.double(.)))
     
-    metrics_df <- metrics_df %>% mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
+    metrics_df <- metrics_df |> 
+      mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
     
     
   }) 
@@ -392,10 +451,10 @@ server <- function(input, output) {
     metrics_summarised <- reactive ({
       
       all_df_papers_sum() |>
-      group_by(.data[[input$group]]) %>% 
-      summarise(number = n(), mean_number_of_citations = mean(number_of_citations), mean_H_index = mean(H_index), mean_FWCI = mean(FWCI), mean_number_of_papers = mean(total_papers)) |>
-      mutate(across(c('mean_FWCI'), round, 1)) |>
-      mutate(across(c('mean_number_of_citations', 'mean_H_index','mean_number_of_papers' ), round, 0))
+        group_by(.data[[input$group]]) |> 
+        summarise(number = n(), average_number_of_papers = mean(total_papers), average_number_of_citations = mean(number_of_citations), average_FWCI = mean(FWCI), average_H_index = mean(H_index)) |>
+        mutate(across(c('average_FWCI'), round, 1)) |>
+        mutate(across(c('average_number_of_citations', 'average_H_index','average_number_of_papers' ), round, 0))
     
   })
   
@@ -406,11 +465,18 @@ server <- function(input, output) {
    papers_all_years_df <- reactive ({
     
      full_df_papers_by_year <- makeSciValPapersAllYearsDF(ID_list(), num_rows())
-     full_df_papers_by_year <- Trainees() %>% inner_join(full_df_papers_by_year, by="id")  %>% select(-name)
+     
+     full_df_papers_by_year <- Trainees() |> 
+       inner_join(full_df_papers_by_year, by="id") |> 
+       select(-name)
+     
      metric_list <- c('id', 'gender', 'fellowship', 'job')
-     full_df_papers_by_year <- full_df_papers_by_year %>% mutate(across(metric_list, ~as.factor(.)))
-     full_df_papers_by_year <- full_df_papers_by_year %>%
-     mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
+     
+     full_df_papers_by_year <- full_df_papers_by_year |> 
+       mutate(across(metric_list, ~as.factor(.)))
+     
+     full_df_papers_by_year <- full_df_papers_by_year |>
+       mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
      
      as_tibble(full_df_papers_by_year)
      
@@ -420,10 +486,10 @@ server <- function(input, output) {
    
    allPapers_summarised <- reactive ({
      
-     papers_all_years_df() %>% 
-       group_by(.data[[input$group]]) %>% 
-       summarise(number = n(), '2000' = sum(`2000`), '2001' = sum(`2001`), '2002' = sum(`2002`), '2003' = sum(`2003`), '2004' = sum(`2004`), '2005' = sum(`2005`), '2006' = sum(`2006`), '2007' = sum(`2007`), '2008' = sum(`2008`), '2009' = sum(`2009`), '2010' = sum(`2010`), '2011' = sum(`2011`))
-       #          , '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`))
+     papers_all_years_df() |> 
+       group_by(.data[[input$group]]) |> 
+       summarise(number = n(), '2000' = sum(`2000`), '2001' = sum(`2001`), '2002' = sum(`2002`), '2003' = sum(`2003`), '2004' = sum(`2004`), '2005' = sum(`2005`), '2006' = sum(`2006`), '2007' = sum(`2007`), '2008' = sum(`2008`), '2009' = sum(`2009`), '2010' = sum(`2010`), '2011' = sum(`2011`),
+       '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`))
    })   
    
   
@@ -432,20 +498,25 @@ server <- function(input, output) {
   
   papers_years_out_df <- reactive ({
     
-    tidy_df <- papers_all_years_df() %>%
-    pivot_longer(
-      cols = starts_with("2"),
-      names_to = "year",
-      values_to = "papers",
-      values_drop_na = TRUE)
+    tidy_df <- papers_all_years_df() |>
+        pivot_longer(
+        cols = starts_with("2"),
+        names_to = "year",
+        values_to = "papers",
+        values_drop_na = TRUE)
   
   tidy_df <- transform(tidy_df, year = as.numeric(year))
+  
   tidy_df <- mutate(tidy_df, years_out = year - finish)
+  
   full_metric_list <- c('id', 'gender', 'fellowship', 'job')
-  tidy_df <- tidy_df %>% 
+  
+  tidy_df <- tidy_df |> 
     mutate(across(full_metric_list, ~as.factor(.)))
-  tidy_df <- tidy_df %>%
+  
+  tidy_df <- tidy_df |>
     mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
+  
   as_tibble(tidy_df)
   
   })
@@ -455,6 +526,7 @@ server <- function(input, output) {
   papers_years_out_jobs <- reactive ({
   
   job_list <- input$checkGroup
+  
   papers_years_out_jobs <- filter(papers_years_out_df(), job %in% job_list)
   
   as_tibble(papers_years_out_jobs)
@@ -465,9 +537,9 @@ server <- function(input, output) {
   
   papers_years_out_summarised_df <- reactive ({
   
-    tidy_sum <- papers_years_out_jobs() %>% 
-    group_by(job, years_out) %>%
-    summarise(number = n(), papers = sum(papers))
+    tidy_sum <- papers_years_out_jobs() |> 
+      group_by(job, years_out) |>
+      summarise(number = n(), papers = sum(papers))
  
   as_tibble(tidy_sum)
   
@@ -487,7 +559,8 @@ server <- function(input, output) {
    
   output$testTable <- DT::renderDataTable({
     
-    papers_all_years_df()
+    #papers_all_years_df()
+    all_df_papers_sum()
     
   })
   
@@ -495,15 +568,17 @@ server <- function(input, output) {
    output$researcherTable <- DT::renderDataTable({
     
     researcherTable <- Trainees() |>
-      rename("last" = author, "SciVal ID" = id, "enter" = enter_date) |> 
+      rename("last" = author, "SciVal ID" = id, "cohort" = enter_date) |> 
       select(-starts_with("20"), -ends_with("1"), -"zip_code")
     
  })
   
   output$metricsTable <- DT::renderDataTable({
     
-    metricsTable <- metrics_summarised() |> 
-    rename("cohort" = enter_date, "number in cohort" = number, "mean # of citations" = mean_number_of_citations, "mean H-index" = mean_H_index, "mean FWCI" = mean_FWCI, "mean # of papers" = mean_number_of_papers)
+    metricsTable <- 
+      metrics_summarised() 
+    #|> 
+    #  rename("cohort" = enter_date, "number in cohort" = number, "mean # of citations" = mean_number_of_citations, "mean H-index" = mean_H_index, "mean FWCI" = mean_FWCI, "mean # of papers" = mean_number_of_papers)
     
   })
   
@@ -527,65 +602,70 @@ server <- function(input, output) {
   
   ############# make plots ##################
   
+  output$plotJobsPie <- renderPlot({
+    
+    df_jobs <- Trainees() |> 
+      group_by(job) %>%
+      summarise(n = n())
+    
+    ggplot(df_jobs, aes(x = "", y = n, fill = job)) +
+      geom_col(color = "black") +
+      geom_text(aes(label = n),
+                position = position_stack(vjust = 0.5)) +
+      coord_polar(theta = "y") +
+      scale_fill_brewer() +
+      theme_void()
+    
+  })
+  
+  
   output$plotPapersBox <- renderPlot({
     
-    all_df_papers_sum() %>%
+    all_df_papers_sum() |>
       
       ggplot(aes(x = .data[[input$group]], y = total_papers)) + 
+      geom_boxplot(outlier.shape = NA) +
+      geom_jitter(shape=16, position=position_jitter(0.2)) +
+      ylim(0, 100) + 
+      theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))
+    
+  }) 
+  
+  output$plotFWCIBox <- renderPlot({
+    
+    all_df_papers_sum() |>
+      
+      ggplot(aes(x = .data[[input$group]], y = FWCI)) + 
+      geom_hline(yintercept=1, color = "red") +
       geom_boxplot() +
-      geom_jitter(shape=16, position=position_jitter(0.2))
+      geom_jitter(shape=16, position=position_jitter(0.2)) +
+      ylim(0, 15) + 
+      theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))
     
   }) 
   
   
-  output$plotPapers <- renderPlot({
+  output$plotCitationsBox <- renderPlot({
     
-    metrics_summarised() %>%
+    all_df_papers_sum() |>
       
-      ggplot(aes(x = .data[[input$group]], y = mean_number_of_papers)) + 
-      geom_col() +
+      ggplot(aes(x = .data[[input$group]], y = number_of_citations)) + 
+      geom_boxplot() +
+      geom_jitter(shape=16, position=position_jitter(0.2)) +
+      #ylim(0, 15) + 
       theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))
-    
-    #    +   ggtitle("average number of papers by .data[[input$group]]")
     
   }) 
   
-  
-  output$plotFWCI <- renderPlot({
+  output$plotH_indexBox <- renderPlot({
     
-    metrics_summarised() %>%
+    all_df_papers_sum() |>
       
-      ggplot(aes(x = .data[[input$group]], y = mean_FWCI)) + 
-      geom_col() +
+      ggplot(aes(x = .data[[input$group]], y = H_index)) + 
+      geom_boxplot() +
+      geom_jitter(shape=16, position=position_jitter(0.2)) +
+      #ylim(0, 15) + 
       theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))
-    
-    #    +  ggtitle("average field-weighted citation impact by .data[[input$group]]")
-    
-  }) 
-  
-  
-  output$plotCitations <- renderPlot({
-    
-    metrics_summarised() %>%
-      
-      ggplot(aes(x = .data[[input$group]], y = mean_number_of_citations)) + 
-      geom_col() +
-      theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))
-    
-    
-    #    +  ggtitle("average number of citations by .data[[input$group]]")
-    
-  }) 
-  
-  output$plotH_index <- renderPlot({
-    
-    metrics_summarised() %>%
-      
-      ggplot(aes(x = .data[[input$group]], y = mean_H_index)) + 
-      geom_col() +
-      theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))
-    
-    #    +  ggtitle("average H_index by .data[[input$group]]")
     
   }) 
   
@@ -603,18 +683,47 @@ server <- function(input, output) {
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(), 
             axis.line = element_line(colour = "gray")) +
-      ylab("") +
+      ylab("number of papers") +
+      theme(axis.title = element_text(size = 15), axis.text = element_text(size = 10)) +
+      
+      
       ggtitle("Number of papers published each year by BU Bioinformatics alumni ", 
       ) + 
-      theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+      theme(plot.title = element_text(size = 15, hjust = 0.5), plot.subtitle = element_text(size = 15, hjust = 0.5))
     
+  }) 
+  
+  
+  output$plotYearsOutPapersAveraged <- renderPlot({
+    
+    papers_years_out_summarised_averaged_df() |> 
+      
+      ggplot(aes(x = years_out, y = avg_papers,
+                 group = job, color = job)) +
+      geom_line()+
+      xlim(-10, NA) +
+      theme_minimal() +
+      theme(panel.border = element_blank(), 
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(), 
+            axis.line = element_line(colour = "gray")) +
+      
+      xlab("years since PhD") +
+      theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+      
+      ylab("average number of papers") +
+      theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+      
+      ggtitle("Average number of papers published each year since PhD", 
+      ) + 
+      theme(plot.title = element_text(size = 15, hjust = 0.5), plot.subtitle = element_text(size = 15, hjust = 0.5))
     
   }) 
   
   
   output$plotYearsOutPapers <- renderPlot({
     
-    papers_years_out_summarised_df() %>% 
+    papers_years_out_summarised_df() |> 
     
     ggplot(aes(x = years_out, y = papers,
                group = job, color = job)) +
@@ -625,44 +734,19 @@ server <- function(input, output) {
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(), 
           axis.line = element_line(colour = "gray")) +
-    ylab("total number of papers") +
-    theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
-  
-  }) 
-  
-    
-  output$plotYearsOutPapersAveraged <- renderPlot({
       
-    papers_years_out_summarised_averaged_df() %>% 
-    
-    ggplot(aes(x = years_out, y = avg_papers,
-               group = job, color = job)) +
-    geom_line()+
-      xlim(-10, NA) +
-    theme_minimal() +
-    theme(panel.border = element_blank(), 
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(), 
-          axis.line = element_line(colour = "gray")) +
-    ylab("average number of papers") +
-    theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5))
+    xlab("years since PhD") +
+      theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+      
+    ylab("total number of papers") +
+      theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+      
+    ggtitle("Total number of papers published each year since PhD", 
+      ) + 
+      theme(plot.title = element_text(size = 15, hjust = 0.5), plot.subtitle = element_text(size = 15, hjust = 0.5))
   
   }) 
-
   
-output$plotPie <- renderPlot({
-    
-    df_jobs <- Trainees() %>% group_by(job) %>% summarise(n = n())
-    
-    ggplot(df_jobs, aes(x = "", y = n, fill = job)) +
-      geom_col(color = "black") +
-      geom_text(aes(label = n),
-                position = position_stack(vjust = 0.5)) +
-      coord_polar(theta = "y") +
-      scale_fill_brewer() +
-      theme_void()
-    
-  })
   
 }
 
