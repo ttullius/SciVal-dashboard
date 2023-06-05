@@ -1,0 +1,174 @@
+,Student_Name,First,Author,Tags,gender,URM,enter_date,finish,months,zip_code,job,latitude,longitude,city,state,county
+1,Brian Abraham,Brian,Abraham,GPP,M,N,2008,2013,46,38105,Academia (non-faculty),35.15182,-90.033959,Memphis,TN,Shelby
+2,Brian Anton,Brian,Anton,IGERT,M,N,2002,2011,108,1938,Industry,42.68571,-70.864132,Ipswich,MA,Essex
+3,Evan Appleton,Evan,Appleton,IGERT,M,N,2010,2016,64,2111,Academia (non-faculty),42.351047,-71.059365,Boston,MA,Suffolk
+4,Elham Azizi,Elham,Azizi,RA (James Galagan),F,N,2010,2014,48,10032,Academia,40.839137,-73.942181,New York,NY,New York
+5,Jennifer Beane,Jennifer,Beane,IGERT,F,N,2001,2007,66,2118,Academia,42.336162,-71.072854,Boston,MA,Suffolk
+6,Arjun Bhutkar,Arjun,Bhutkar,IGERT,M,N,2004,2008,51,2139,Academia (non-faculty),42.365146,-71.101842,Cambridge,MA,Middlesex
+7,William Blake ,William,Blake,RA (Jim Collins),M,N,2000,2003,29,2114,Industry,42.362097,-71.023661,Boston,MA,Suffolk
+8,Ana Brandusa Pavel,Ana,Brandusa Pavel,University Fellow,F,N,2012,2017,53,10029,Academia,40.791884,-73.943517,New York,NY,New York
+9,David Bray,David,Bray,University Fellow,M,N,2015,2020,61,2141,Industry,42.368673,-71.083596,Cambridge,MA,Middlesex
+10,Emma Briars,Emma,Briars,T32,F,N,2016,2021,63,2135,Industry,42.349768,-71.104888,Brighton,MA,Suffolk
+11,Demarcus Briers,Demarcus,Briers,T32,M,Y,2014,2018,51,2472,Industry,42.363096,-71.201398,Watertown,MA,Middlesex
+12,John Michael Brockman,John Michael,Brockman,IGERT,M,N,2002,2009,76,53711,Industry,43.021252,-89.417973,Madison,WI,Dane
+13,John Brothers,John,Brothers,T32,M,N,2007,2013,67,2142,Industry,42.36284,-71.084814,Cambridge,MA,Middlesex
+14,Alexander Burroughs,Alexander,Burroughs,GPP,M,N,2003,2008,51,20892,Government Lab,39.002375,-77.10341,Bethesda,MD,Montgomery
+15,Allyson Byrd,Allyson,Byrd,GPP,F,N,2012,2016,52,94080,Industry,37.657443,-122.423483,South San Francisco,CA,San Mateo
+16,David Byrne,David,Byrne,University Fellow,M,Y,2006,2012,65,1754,Industry,42.446396,-71.459405,Maynard,MA,Middlesex
+17,Joshua Campbell,Joshua,Campbell,T32,M,N,2007,2012,55,2118,Academia,42.336162,-71.072854,Boston,MA,Suffolk
+18,Sebastian Carrasco Pro,Sebastian,Carrasco Pro,University Fellow,M,N,2016,2020,49,2110,Industry,42.352847,-71.051466,Boston,MA,Suffolk
+19,Yi-Chien Chang,Yi-Chien,Chang,RA (Charles DeLisi),M,N,2009,2016,76,2142,Industry,42.36284,-71.084814,Cambridge,MA,Middlesex
+20,Hao Chen ,Hao,Chen,University Fellow,M,N,2013,2020,79,2141,Industry,42.368673,-71.083596,Cambridge,MA,Middlesex
+21,Rong Chen,Rong,Chen,University Fellow,M,N,1999,2004,46,10022,Industry,40.758775,-73.967842,New York,NY,New York
+22,Praveen Cherukuri,Praveen,Cherukuri,GPP,M,N,2003,2007,48,57117,Industry,43.674582,-96.79134,Sioux Falls,SD,Minnehaha
+23,Aaron Chevalier,Aaron,Chevalier,T32,M,N,2017,2022,59,2210,Industry,42.347547,-71.040645,Boston,MA,Suffolk
+24,Jaeyoon Chung,Jaeyoon,Chung,University Fellow,M,N,2011,2017,72,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+25,Karl Clodfelter,Karl,Clodfelter,IGERT,M,N,2000,2007,76,2109,Industry,42.360027,-71.054495,Boston,MA,Suffolk
+26,Sara (Baldwin) Collins,Sara,(Baldwin) Collins,IGERT,F,N,2008,2014,64,2129,Industry,42.382588,-71.065287,Charlestown,MA,Suffolk
+27,Stephen Comeau,Stephen,Comeau,IGERT,M,N,2001,2007,65,6877,Industry,41.308201,-73.494637,Ridgefield,CT,Fairfield
+28,Sean Corbett,Sean,Corbett,University Fellow,M,N,2014,2019,57,2142,Industry,42.36284,-71.084814,Cambridge,MA,Middlesex
+29,Jike Cui ,Jike,Cui,University Fellow,M,N,2004,2009,56,2142,Industry,42.36284,-71.084814,Cambridge,MA,Middlesex
+30,Adnan Derti,Adnan,Derti,IGERT,M,N,1999,2007,70,27560,Industry,35.852458,-78.843526,Morrisville,NC,Wake
+31,Demetrius DiMucci,Demetrius,DiMucci,T32,M,Y,2014,2019,62,2140,Industry,42.393246,-71.133833,Cambridge,MA,Middlesex
+32,Jonathan Dreyfuss,Jonathan,Dreyfuss,IGERT,M,N,2009,2014,50,2215,Research Institute,42.345079,-71.107653,Boston,MA,Suffolk
+33,Michael Driscoll,Michael,Driscoll,IGERT,M,N,2002,2008,64,94107,Entrepreneur,37.769029,-122.393681,San Francisco,CA,San Francisco
+34,Alexandra Dumitriu,Alexandra,Dumitriu,University Fellow,F,N,2007,2012,55,2141,Industry,42.368673,-71.083596,Cambridge,MA,Middlesex
+35,Marzieh Eslami Rasekh,Marzieh,Eslami Rasekh,University Fellow,F,N,2016,2021,57,92120,Industry,32.794947,-117.079863,San Diego,CA,San Diego
+36,Jeremiah Faith ,Jeremiah,Faith,IGERT,M,N,2003,2008,52,10029,Academia,40.791884,-73.943517,New York,NY,New York
+37,Tyler Faits,Tyler,Faits,University Fellow,M,N,2014,2020,76,2141,Research Institute,42.368673,-71.083596,Cambridge,MA,Middlesex
+38,Lina Faller,Lina,Faller,T32,F,N,2008,2014,64,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+39,John Farrell,John,Farrell,BU Employee Tuition Remission,M,N,2006,2014,NA,2118,Academia (non-faculty),42.336162,-71.072854,Boston,MA,Suffolk
+40,Anthony Federico,Anthony,Federico,T32,M,N,2017,2021,51,2215,Industry,42.345079,-71.107653,Boston,MA,Suffolk
+41,James Flanigon,James,Flanigon,RA (Jim Collins),M,N,2003,2009,60,2451,Entrepreneur,42.398588,-71.24505,Waltham,MA,Middlesex
+42,Eric Franzosa,Eric,Franzosa,T32,M,N,2006,2011,56,2215,Academia (non-faculty),42.345079,-71.107653,Boston,MA,Suffolk
+43,Yu Fu,Yu,Fu,University Fellow,M,N,2012,2018,67,98104,Industry,47.432251,-121.803388,Seattle,WA,King
+44,Yutao Fu,Yutao,Fu,University Fellow,M,N,2002,2008,62,94538,Industry,37.509453,-121.95832,Fremont,CA,Alameda
+45,Vincent Fusaro ,Vincent,Fusaro,IGERT,M,N,2003,2009,63,94103,Industry,37.775678,-122.412131,San Francisco,CA,San Francisco
+46,Sara Garamszegi,Sara,Garamszegi,IGERT,F,N,2009,2014,62,2141,Research Institute,42.368673,-71.083596,Cambridge,MA,Middlesex
+47,Elizabeth George ,Elizabeth,George,IGERT,F,N,2001,2007,60,6520,Academia (non-faculty),41.365709,-72.927507,New Haven,CT,New Haven
+48,Joseph Gerrein,Joseph,Gerrein,T32,M,N,2008,2014,61,94080,Industry,37.657443,-122.423483,South San Francisco,CA,San Mateo
+49,Julie (Zeskind) Gil,Julie,(Zeskind) Gil,T32,F,N,2006,2012,64,2129,Industry,42.382588,-71.065287,Charlestown,MA,Suffolk
+50,Yevgeniy Gindin,Yevgeniy,Gindin,GPP,M,N,2009,2014,55,94063,Industry,37.490387,-122.212846,Redwood City,CA,San Mateo
+51,Irina Glotova,Irina,Glotova,University Fellow,F,N,2009,2014,48,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+52,Joshua Goldford,Joshua,Goldford,University Fellow,M,N,2013,2018,59,2139,Academia (non-faculty),42.365146,-71.101842,Cambridge,MA,Middlesex
+53,Antonio Gomes,Antonio,Gomes,University Fellow,M,N,2008,2013,59,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+54,Brian Granger,Brian,Granger,IGERT,M,N,2008,2015,73,2210,Industry,42.347547,-71.040645,Boston,MA,Suffolk
+55,Jason Greenbaum,Jason,Greenbaum,IGERT,M,N,1999,2006,78,92037,Research Institute,32.898511,-117.225744,La Jolla,CA,San Diego
+56,Nicholas Guido ,Nicholas,Guido,IGERT,M,N,1999,2006,79,2421,Academia (non-faculty),42.442567,-71.226453,Lexington,MA,Middlesex
+57,Anastasia Gurinovich,Anastasia,Gurinovich,University Fellow,F,N,2014,2019,57,2111,Academia,42.351047,-71.059365,Boston,MA,Suffolk
+58,Daniel Gusenleitner,Daniel,Gusenleitner,University Fellow,M,N,2011,2016,51,1760,Industry,42.446396,-71.459405,Natick,MA,Middlesex
+59,Adam Gustafson,Adam,Gustafson,T32,M,N,2004,2009,52,97035,Entrepreneur,45.408077,-122.723058,Lake Oswego,OR,Clackamas
+60,Brian Haas,Brian,Haas,Outside Lab (Broad Institute),M,N,2017,2021,47,2141,Research Institute,42.368673,-71.083596,Cambridge,MA,Middlesex
+61,Loren Hansen,Loren,Hansen,GPP,M,N,2005,2012,72,95134,Industry,37.189396,-121.705327,San Jose,CA,Santa Clara
+62,Rhonda Harrison,Rhonda,Harrison,IGERT,F,Y,1999,2004,48,60304,Entrepreneur,41.811929,-87.68732,Oak Park,IL,Cook
+63,Peter Haverty,Peter,Haverty,IGERT,M,N,1999,2005,59,94608,Industry,37.833876,-122.29548,Emeryville,CA,Alameda
+64,Boris Hayete,Boris,Hayete,IGERT,M,N,2002,2007,56,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+65,Adrian Heilbut,Adrian,Heilbut,Teaching Fellow,M,N,2010,2016,69,10027,Academia,40.812242,-73.9532,New York,NY,New York
+66,Syeda Kahkeshan Hijazi,Syeda Kahkeshan,Hijazi,Fulbright Scholar,F,N,2009,2014,55,2139,Research Institute,42.365146,-71.101842,Cambridge,MA,Middlesex
+67,JD Hogan,JD,Hogan,IGERT,M,N,2012,2018,77,2141,Industry,42.368673,-71.083596,Cambridge,MA,Middlesex
+68,Lan Hu,Lan,Hu,University Fellow,F,N,2005,2010,52,10018,Industry,40.755332,-73.993172,New York,NY,New York
+69,Chia-Ling Huang,Chia-Ling,Huang,RA (Charles DeLisi),F,N,2009,2014,52,2139,Research Institute,42.365146,-71.101842,Cambridge,MA,Middlesex
+70,Howook Hwang,Howook,Hwang,RA (Zhiping Weng),M,N,2005,2010,52,10036,Industry,40.75953,-73.989847,New York,NY,New York
+71,Farren Isaacs ,Farren,Isaacs,RA (Jim Collins),M,N,2000,2003,28,6520,Academia,41.365709,-72.927507,New Haven,CT,New Haven
+72,Sowmya Iyer,Sowmya,Iyer,University Fellow,F,N,2009,2015,68,2472,Industry,42.363096,-71.201398,Watertown,MA,Middlesex
+73,Christopher Jacobs,Christopher,Jacobs,IGERT,M,N,2009,2016,70,2215,Academia (non-faculty),42.345079,-71.107653,Boston,MA,Suffolk
+74,David Jenkins,David,Jenkins,University Fellow,M,N,2014,2018,53,2110,Industry,42.352847,-71.051466,Boston,MA,Suffolk
+75,Amrita Kar,Amrita,Kar,Self-funded,F,N,2010,2016,75,2472,Industry,42.363096,-71.201398,Watertown,MA,Middlesex
+76,Tanya Karagiannis,Tanya,Karagiannis,T32,F,N,2016,2021,61,2111,Academia (non-faculty),42.351047,-71.059365,Boston,MA,Suffolk
+77,Ulas Karaoz,Ulas,Karaoz,RA (Simon Kasif),M,N,2001,2008,76,94720,Government Lab,37.866825,-122.253582,Berkeley,CA,Alameda
+78,Elinor Karlsson ,Elinor,Karlsson,IGERT,F,N,2003,2008,55,1655,Academia,42.364807,-71.896868,Worcester,MA,Worcester
+79,Vinay Kartha,Vinay,Kartha,IGERT,M,N,2013,2018,53,94080,Industry,37.657443,-122.423483,South San Francisco,CA,San Mateo
+80,Jessica Keenan,Jessica,Keenan,IGERT,F,N,2012,2019,86,2142,Industry,42.36284,-71.084814,Cambridge,MA,Middlesex
+81,Joshua Klein,Joshua,Klein,University Fellow,M,N,2013,2018,65,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+82,Niels Klitgord,Niels,Klitgord,University Fellow,M,N,2007,2011,48,92130,Industry,32.952467,-117.161871,San Diego,CA,San Diego
+83,Adam Labadorf,Adam,Labadorf,IGERT,M,N,2012,2016,46,2210,Academia,42.347547,-71.040645,Boston,MA,Suffolk
+84,Brenna LaBarre,Brenna,LaBarre,GPP,F,N,2012,2018,70,2115,Academia (non-faculty),42.342043,-71.096848,Boston,MA,Suffolk
+85,Dan Lancour,Dan,Lancour,T32,M,N,2013,2019,77,2472,Industry,42.363096,-71.201398,Watertown,MA,Middlesex
+86,Jason Laramie,Jason,Laramie,RA (Rick Myers),M,N,2003,2008,45,2370,Research Institute,41.954199,-70.885095,Rockland,MA,Plymouth
+87,Soohyun Lee ,Soohyun,Lee,Self-funded,F,N,2003,2009,64,2141,Industry,42.368673,-71.083596,Cambridge,MA,Middlesex
+88,Dmitriy Leyfer,Dmitriy,Leyfer,IGERT,M,N,2000,2005,52,2138,Industry,42.380442,-71.132947,Cambridge,MA,Middlesex
+89,Jian-Liang Li,Jian-Liang,Li,Self-funded,M,N,2001,2006,63,27709,Research Institute,36.051155,-78.857651,Durham,NC,Durham
+90,Bolan Linghu,Bolan,Linghu,University Fellow,F,N,2004,2009,55,2142,Industry,42.36284,-71.084814,Cambridge,MA,Middlesex
+91,David Lorenz ,David,Lorenz,IGERT,M,N,2001,2009,84,2215,Research Institute,42.345079,-71.107653,Boston,MA,Suffolk
+92,Joshua Loving,Joshua,Loving,IGERT,M,Y,2011,2016,66,19104,Industry,39.960912,-75.19668,Philadelphia,PA,Philadelphia
+93,Augustin Luna,Augustin,Luna,GPP,M,Y,2007,2013,71,2115,Academia (non-faculty),42.342043,-71.096848,Boston,MA,Suffolk
+94,Lingqi Luo,Lingqi,Luo,University Fellow,M,N,2012,2017,60,10022,Industry,40.758775,-73.967842,New York,NY,New York
+95,Anna Lyubetskaya,Anna,Lyubetskaya,University Fellow,F,N,2009,2015,60,2142,Industry,42.36284,-71.084814,Cambridge,MA,Middlesex
+96,Evan Maxwell,Evan,Maxwell,GPP,M,N,2010,2015,52,10591,Industry,41.089703,-73.844034,Tarrytown,NY,Westchester
+97,Varun Mazumdar,Varun,Mazumdar,University Fellow,M,N,2007,2012,55,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+98,Andy McMurry,Andy,McMurry,Outside Lab,M,N,2009,2015,65,2115,Academia (non-faculty),42.342043,-71.096848,Boston,MA,Suffolk
+99,Joseph Mellor ,Joseph,Mellor,IGERT,M,N,2000,2007,71,1915,Entrepreneur,42.565145,-70.853843,Beverly,MA,Essex
+100,Yan Meng,Yan,Meng,RA (Lindsay Farrer),F,N,2003,2007,52,91780,Industry,33.786594,-118.298662,Temple City,CA,Los Angeles
+101,Gregory Miles,Gregory,Miles,T32,M,N,2004,2012,65,95051,Industry,37.189396,-121.705327,Santa Clara,CA,Santa Clara
+102,Julian Mintseris,Julian,Mintseris,IGERT,M,N,2000,2006,61,2115,Academia (non-faculty),42.342043,-71.096848,Boston,MA,Suffolk
+103,Richard Morgan,Richard,Morgan,IGERT,M,N,2000,2009,68,1938,Industry,42.68571,-70.864132,Ipswich,MA,Essex
+104,Scott Mottarella,Scott,Mottarella,IGERT,M,N,2010,2016,68,94070,Industry,37.498586,-122.29815,San Carlos,CA,San Mateo
+105,Amy (Li) Mueller,Amy,(Li) Mueller,T32,F,N,2013,2018,66,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+106,Naoki Nariai,Naoki,Nariai,RA (Simon Kasif),M,N,2006,2010,44,92121,Industry,32.90391,-117.207828,San Diego,CA,San Diego
+107,Chris Nogiec,Chris,Nogiec,T32,M,N,2005,2014,100,2115,Academia (non-faculty),42.342043,-71.096848,Boston,MA,Suffolk
+108,Katherine Norwood,Katherine,Norwood,T32,F,N,2014,2020,69,2141,Industry,42.368673,-71.083596,Cambridge,MA,Middlesex
+109,Chetanya Pandya,Chetanya,Pandya,University Fellow,M,N,2008,2014,66,2141,Industry,42.368673,-71.083596,Cambridge,MA,Middlesex
+110,Rebecca Panitch,Rebecca,Panitch,T32,F,N,2018,2023,52,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+111,Jignesh Parikh,Jignesh,Parikh,T32,M,N,2007,2012,55,2140,Industry,42.393246,-71.133833,Cambridge,MA,Middlesex
+112,Richard Park,Richard,Park,T32,M,N,2008,2014,66,60613,Industry,41.811929,-87.68732,Chicago,IL,Cook
+113,Stephen Parker,Stephen,Parker,University Fellow,M,Y,2004,2009,56,48109,Academia,42.276324,-83.711228,Ann Arbor,MI,Washtenaw
+114,Devanshi Patel ,Devanshi,Patel,T32,F,N,2015,2020,62,20005,Industry,38.904011,-77.031695,Washington,DC,District Of Columbia
+115,Joe Perez-Rogers,Joe,Perez-Rogers,IGERT,M,Y,2012,2016,54,94403,Industry,37.541486,-122.304079,San Mateo,CA,San Mateo
+116,Lisa Pham,Lisa,Pham,IGERT,F,N,2008,2013,55,19120,Industry,40.031611,-75.119019,Philadelphia,PA,Philadelphia
+117,Brian Pierce ,Brian,Pierce,IGERT,M,N,2002,2008,64,20850,Academia,39.089557,-77.184127,Rockville,MD,Montgomery
+118,Jahnavi Prasad,Jahnavi,Prasad,University Fellow,M,N,1999,2005,63,2138,Industry,42.380442,-71.132947,Cambridge,MA,Middlesex
+119,Michael Quintin,Michael,Quintin,T32,M,N,2013,2020,86,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+120,Andy Rampersaud,Andy,Rampersaud,IGERT,M,N,2010,2019,106,2215,Academia (non-faculty),42.345079,-71.107653,Boston,MA,Suffolk
+121,Timothy Reddy,Timothy,Reddy,University Fellow,M,N,2003,2008,51,27708,Academia,36.028685,-78.92398,Durham,NC,Durham
+122,Eric Reed,Eric,Reed,University Fellow,M,N,2015,2020,61,2155,Academia (non-faculty),42.422095,-71.109297,Medford,MA,Middlesex
+123,Esther Rheinbay,Esther,Rheinbay,University Fellow,F,N,2006,2012,67,2114,Academia,42.362097,-71.023661,Boston,MA,Suffolk
+124,Guilhem Richard,Guilhem,Richard,University Fellow,M,N,2009,2014,51,2909,Industry,41.820599,-71.444302,Providence,RI,Providence
+125,William Riehl,William,Riehl,T32,M,N,2005,2011,68,94720,Government Lab,37.866825,-122.253582,Berkeley,CA,Alameda
+126,Kimberly Robasky,Kimberly,Robasky,RA (Jim Collins),F,N,2009,2013,34,2451,Industry,42.398588,-71.24505,Waltham,MA,Middlesex
+127,Graham Rockwell,Graham,Rockwell,n/a,M,N,2005,2013,82,10017,Industry,40.752955,-73.973196,New York,NY,New York
+128,Joseph Ryan,Joseph,Ryan,IGERT,M,N,2001,2007,63,32080,Academia,NA,NA,Saint Augustine,FL,Saint Johns
+129,Michael Schaffer ,Michael,Schaffer,IGERT,M,N,2000,2007,75,19477,Industry,40.185934,-75.232407,Spring House,PA,Montgomery
+130,Lucas Schiffer,Lucas,Schiffer,University Fellow,M,N,2018,2023,50,7103,Academia (non-faculty),40.738901,-74.194839,Newark,NJ,Essex
+131,Stephanie Schneider,Stephanie,Schneider,T32,F,N,2005,2013,96,2115,Academia (non-faculty),42.342043,-71.096848,Boston,MA,Suffolk
+132,Matthew Schu,Matthew,Schu,T32,M,N,2008,2014,67,27709,Industry,36.051155,-78.857651,Durham,NC,Durham
+133,Heather Selby,Heather,Selby,IGERT,F,N,2012,2019,83,94305,Academia (non-faculty),37.189396,-121.705327,Stanford,CA,Santa Clara
+134,Vishal Shah,Vishal,Shah,Self-funded,M,N,2003,2007,47,19355,Industry,40.02951,-75.713599,Malvern,PA,Chester
+135,Elmutaz Shaikho,Elmutaz,Shaikho,T32,M,Y,2014,2018,45,2210,Industry,42.347547,-71.040645,Boston,MA,Suffolk
+136,Boris Shakhnovich,Boris,Shakhnovich,IGERT,M,N,2001,2004,31,2445,Entrepreneur,42.318097,-71.143697,Brookline,MA,Norfolk
+137,Elizabeth (Becker) Shea,Elizabeth,(Becker) Shea,T32,F,N,2015,2020,60,2139,Academia (non-faculty),42.365146,-71.101842,Cambridge,MA,Middlesex
+138,Xingyi Shi ,Xingyi,Shi,University Fellow,F,N,2016,2021,57,2139,Research Institute,42.365146,-71.101842,Cambridge,MA,Middlesex
+139,Michael Silberstein ,Michael,Silberstein,IGERT,M,N,2000,2007,74,32608,Industry,29.575246,-82.407395,Gainesville,FL,Alachua
+140,Priyam Singh,Priyam,Singh,RA (Joel Graber - Jackson Laboratory),F,N,2004,2009,52,92122,Industry,32.856847,-117.208027,San Diego,CA,San Diego
+141,Evan Snitkin,Evan,Snitkin,T32,M,N,2004,2009,56,48109,Academia,42.276324,-83.711228,Ann Arbor,MI,Washtenaw
+142,Emily Speranza,Emily,Speranza,University Fellow,F,N,2013,2018,53,44106,Academia,41.504751,-81.602799,Cleveland,OH,Cuyahoga
+143,George Steinhardt,George,Steinhardt,Self-funded; (IGERT Funded Year 3),M,N,2010,2018,95,53233,Industry,43.037213,-87.933529,Milwaukee,WI,Milwaukee
+144,Aravind Subramanian,Aravind,Subramanian,University Fellow,M,N,2000,2005,56,2141,Research Institute,42.368673,-71.083596,Cambridge,MA,Middlesex
+145,Aarathi Sugathan,Aarathi,Sugathan,University Fellow,F,N,2006,2013,79,94080,Industry,37.657443,-122.423483,South San Francisco,CA,San Mateo
+146,Razvan Sultana,Razvan,Sultana,Self-funded,M,N,2006,2012,68,96813,Academia (non-faculty),24.859832,-168.021815,Honolulu,HI,Honolulu
+147,Jisi Tang (Tanggis Bohnuud),Jisi,Tang (Tanggis Bohnuud),University Fellow,M,N,2009,2014,53,2142,Industry,42.36284,-71.084814,Cambridge,MA,Middlesex
+148,Ania Tassinari,Ania,Tassinari,IGERT,F,N,2011,2017,71,2210,Industry,42.347547,-71.040645,Boston,MA,Suffolk
+149,Kannan Tharakaraman ,Kannan,Tharakaraman,GPP,M,N,2004,2008,48,2139,Academia (non-faculty),42.365146,-71.101842,Cambridge,MA,Middlesex
+150,Arjan van der Velde,Arjan,van der Velde,University Fellow,M,N,2012,2019,81,2451,Industry,42.398588,-71.24505,Waltham,MA,Middlesex
+151,Badri Vardarajan,Badri,Vardarajan,University Fellow,M,N,2006,2013,69,10032,Academia,40.839137,-73.942181,New York,NY,New York
+152,Kavitha Venkatesan,Kavitha,Venkatesan,n/a,F,N,1999,2005,59,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+153,Prashanth Vishwanath,Prashanth,Vishwanath,University Fellow,M,N,1999,2006,73,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+154,Christian Wake ,Christian,Wake,T32,M,N,2013,2018,67,20852,Industry,39.052158,-77.121096,Rockville,MD,Montgomery
+155,Megon Walker,Megon,Walker,IGERT,F,Y,2000,2007,75,77002,Other,29.807651,-95.391447,Houston,TX,Harris
+156,Junmin Wang,Junmin,Wang,University Fellow,M,N,2014,2018,52,90007,Academia (non-faculty),33.786594,-118.298662,Los Angeles,CA,Los Angeles
+157,Teresa Wang,Teresa,Wang,IGERT,F,N,2010,2015,56,30359,Government Lab,33.891251,-84.07456,Atlanta,GA,Dekalb
+158,Yaoyu Wang,Yaoyu,Wang,Self-funded,M,N,2003,2007,52,2143,Industry,42.38092,-71.098896,Somerville,MA,Middlesex
+159,Zhe Wang,Zhe,Wang,University Fellow,M,N,2016,2021,58,2421,Industry,42.442567,-71.226453,Lexington,MA,Middlesex
+160,Kevin Wiehe ,Kevin,Wiehe,IGERT,M,N,2001,2008,70,27710,Academia,36.051155,-78.857651,Durham,NC,Durham
+161,Chang-Jiun Wu,Chang-Jiun,Wu,Self-funded,M,N,2003,2009,61,77030,Academia (non-faculty),29.83399,-95.434241,Houston,TX,Harris
+162,Hualin Xi,Hualin,Xi,Self-funded,M,N,2003,2011,87,1801,Entrepreneur,42.488595,-71.157271,Woburn,MA,Middlesex
+163,Gang Xu,Gang,Xu,University Fellow,M,N,1999,2005,67,2116,Industry,42.347207,-71.086095,Boston,MA,Suffolk
+164,Ke Xu,Ke,Xu,RA (MD/PhD),M,N,2017,2021,43,2118,Academia,42.336162,-71.072854,Boston,MA,Suffolk
+165,Mousheng Xu,Mousheng,Xu,University Fellow,M,N,2004,2009,51,1760,Industry,42.446396,-71.459405,Natick,MA,Middlesex
+166,Itai Yanai,Itai,Yanai,IGERT,M,N,1999,2002,30,10012,Academia,40.729124,-73.991582,New York,NY,New York
+167,Wen-Han Yu,Wen-Han,Yu,RA (James Galagan),M,N,2010,2014,47,2139,Industry,42.365146,-71.101842,Cambridge,MA,Middlesex
+168,Yi Yu,Yi,Yu,University Fellow,M,N,2002,2009,69,2215,Industry,42.345079,-71.107653,Boston,MA,Suffolk
+169,Shile Zhang,Shile,Zhang,GPP,F,N,2010,2016,61,92121,Industry,32.90391,-117.207828,San Diego,CA,San Diego
+170,Xiaoling Zhang,Xiaoling,Zhang,University Fellow,F,N,2004,2010,63,2118,Academia,42.336162,-71.072854,Boston,MA,Suffolk
+171,Yuqing Zhang ,Yuqing,Zhang,University Fellow,F,N,2015,2020,54,94111,Industry,37.773579,-122.405331,San Francisco,CA,San Francisco
+172,Yue Zhao ,Yue,Zhao,University Fellow,M,N,2016,2020,45,85281,Industry,33.432844,-111.927219,Tempe,AZ,Maricopa
+173,Yu Zheng,Yu,Zheng,University Fellow,M,N,2000,2005,46,2142,Industry,42.36284,-71.084814,Cambridge,MA,Middlesex
