@@ -49,6 +49,11 @@ ui <- dashboardPage(
                 accept = ".csv"
       ),
       
+      fileInput("file2",
+                label = h3("Choose CSV File with number of first author papers:"),
+                accept = ".csv"
+      ),
+      
       radioButtons("group", label = h3("Group metrics data by:"),
                    choices = c(Cohort = "enter_date",
                                Gender = "gender",
@@ -75,9 +80,19 @@ ui <- dashboardPage(
         h2("complete program (2000-2021)", align = "center"),
         
         infoBoxOutput("PhDs"),
-        infoBoxOutput("ave_t_to_d"),
         infoBoxOutput("total_papers"),
+        infoBoxOutput("program_h_index"),
+        
+      ),
+      
+      tags$hr(),
+      
+      fluidRow(
+        
+        infoBoxOutput("ave_t_to_d"),
         infoBoxOutput("papers_mean"),
+        infoBoxOutput("h_index_mean"),
+        
        ),
       
       tags$hr(),
@@ -97,7 +112,6 @@ ui <- dashboardPage(
         h2("past 10 years (2011-2021)", align = "center"),
         
           infoBoxOutput("citations_mean"),
-          infoBoxOutput("h_index_mean"),
           infoBoxOutput("fwci_mean"),
           
         ),
@@ -113,6 +127,8 @@ ui <- dashboardPage(
         tabPanel("jobs",h2("What are our PhD graduates doing now?"),plotOutput("plotJobsPie")),
         
         tabPanel("test", DT::dataTableOutput("testTable")),
+        
+        tabPanel("test2", DT::dataTableOutput("testTable2")),
         
         tabPanel("trainees", DT::dataTableOutput("traineesMetricsTable")),
         tabPanel("metrics", DT::dataTableOutput("metricsTable")),
@@ -145,6 +161,17 @@ ui <- dashboardPage(
                  tags$hr(),
                  
                  plotOutput("plotYearsOutPapers")),
+        
+        
+        tabPanel("first author papers", 
+                 
+                 tags$hr(),
+                 
+                 plotOutput("plotFirstAuthorsAveraged"), 
+                 
+                 tags$hr(),
+                 
+                 plotOutput("plotFirstAuthor")),
         
        ),
   )))
@@ -185,7 +212,15 @@ server <- function(input, output) {
     load_file(input$file1$datapath)
   }) 
   
-  ###### produce reactive variables for Ifo Boxes in Dashboard.  ####
+  
+  FirstAuthor <- reactive({
+    
+    req(input$file2)
+    
+    load_file(input$file2$datapath)
+  }) 
+  
+  ###### produce reactive variables for Info Boxes in Dashboard.  ####
   
   trainee_support <- reactive({
     
@@ -214,11 +249,7 @@ server <- function(input, output) {
       filter(trainee_support(), fellowship == "University Fellow")$n
   })
   
-  #metrics_mean <- metrics_df() %>% 
-    #summarise(mean_number_of_citations = mean(number_of_citations), mean_FWCI = mean(FWCI), mean_number_of_papers = mean(number_of_papers)) %>%
-    #mutate_if(is.numeric, round, digits = 0)
-
-  
+ 
   time_to_degree_mean <- reactive({
     time_to_degree_mean <- 
       metrics_df() |> 
@@ -262,28 +293,42 @@ server <- function(input, output) {
       mutate_if(is.numeric, round, digits = 1)
   })
   
+  ###########   END produce reactive variables for Info Boxes in Dashboard.  ####
+  
+  
   ###########.   produce Info Boxes.   ####################
   
   output$PhDs <- renderInfoBox({ 
     infoBox(
       "BU Bioinformatics PhDs", paste0(num_rows()), 
       icon = icon("user-graduate"),
-      color = "yellow"
+      color = "red"
     )
   })
   
-  output$ave_t_to_d <- renderInfoBox({ 
-    infoBox(
-      "average time to degree", paste0(time_to_degree_mean(), " years"), 
-      icon = icon("person"),
-      color = "yellow"
-    )
-  })
   
   output$total_papers <- renderInfoBox({
     infoBox(
       "total number of papers", paste0(total_papers()), 
       icon = icon("users"),
+      color = "red"
+    )
+  })
+  
+  
+  output$program_h_index <- renderInfoBox({
+    infoBox(
+      "BU Bioinformatics Program H-index", paste0(344), 
+      icon = icon("users"),
+      color = "red"
+    )
+  })
+  
+  
+  output$ave_t_to_d <- renderInfoBox({ 
+    infoBox(
+      "average trainee time to degree", paste0(time_to_degree_mean(), " years"), 
+      icon = icon("person"),
       color = "yellow"
     )
   })
@@ -291,7 +336,15 @@ server <- function(input, output) {
   
   output$papers_mean <- renderInfoBox({
     infoBox(
-      "average number of papers", paste0(papers_mean()), 
+      "average number of papers per trainee", paste0(papers_mean()), 
+      icon = icon("person"),
+      color = "yellow"
+    )
+  })
+  
+  output$h_index_mean <- renderInfoBox({
+    infoBox(
+      "average H-index per trainee", paste0(h_index_mean()), 
       icon = icon("person"),
       color = "yellow"
     )
@@ -330,18 +383,9 @@ server <- function(input, output) {
     )
   })
   
-  
   output$citations_mean <- renderInfoBox({
     infoBox(
-      "average number of citations", paste0(citations_mean()), 
-      icon = icon("person"),
-      color = "aqua"
-    )
-  })
-  
-  output$h_index_mean <- renderInfoBox({
-    infoBox(
-      "average H-index", paste0(h_index_mean()), 
+      "average number of citations per trainee", paste0(citations_mean()), 
       icon = icon("person"),
       color = "aqua"
     )
@@ -349,17 +393,22 @@ server <- function(input, output) {
   
   output$fwci_mean <- renderInfoBox({
     infoBox(
-      "average field-weighted citation impact", paste0(fwci_mean()), 
+      "average field-weighted citation impact per trainee", paste0(fwci_mean()), 
       icon = icon("person"),
       color = "aqua"
     )
   })
   
-  #########################.  end produce Info Boxes.   ###################
+  #########################  END produce Info Boxes   ################
+  
+  
   
   num_rows <- reactive ({
+    
     num_rows <- nrow(Trainees())
+    
                      })
+  
   
   ##############  SciVal throws an error if the number of Scopus ID's in the request is >100   ###       
   ##############  Check how many trainees are listed in the trainee metadata file (nrow = number of rows in the dataframe). If >100, subset into two lists of trainees.  #########
@@ -368,10 +417,13 @@ server <- function(input, output) {
   trainee_list <- reactive ({
     
     if(num_rows() > 100) {
+      
       Trainees1 <- Trainees()[1:100, ]
       Trainees2 <- Trainees()[101:num_rows(), ]
       trainee_list <- list(Trainees1, Trainees2)
+      
     }  else  {
+      
       trainee_list <- list(Trainees())
     }
     
@@ -381,7 +433,9 @@ server <- function(input, output) {
   ###  uses get_ID_list function in helpers.R
   
   ID_list <- reactive ({
+    
     sapply(trainee_list(), get_ID_list)
+    
     })
   
 ####### collect and summarise metrics for each trainee from SciVal    #####################
@@ -463,25 +517,37 @@ server <- function(input, output) {
   ####  Call the makeSciValPapersAllYearsDF helper function to retrieve number of papers by year for each trainee   ###########
   
    papers_all_years_df <- reactive ({
-    
-     full_df_papers_by_year <- makeSciValPapersAllYearsDF(ID_list(), num_rows())
      
-     full_df_papers_by_year <- Trainees() |> 
-       inner_join(full_df_papers_by_year, by="id") |> 
+     papers_all_years_df <- makeSciValPapersAllYearsDF(ID_list(), num_rows())
+     
+     papers_all_years_df <- Trainees() |> 
+       inner_join(papers_all_years_df, by="id") |> 
        select(-name)
      
      metric_list <- c('id', 'gender', 'fellowship', 'job')
      
-     full_df_papers_by_year <- full_df_papers_by_year |> 
-       mutate(across(metric_list, ~as.factor(.)))
-     
-     full_df_papers_by_year <- full_df_papers_by_year |>
+     papers_all_years_df <- papers_all_years_df |> 
+       mutate(across(metric_list, ~as.factor(.))) |>
        mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
      
-     as_tibble(full_df_papers_by_year)
-     
    })   
-   
+  
+  
+  allPapers <- reactive ({
+    
+    papers_all_years_df() |> 
+      summarise(number = n(), '2000' = sum(`2000`), '2001' = sum(`2001`), '2002' = sum(`2002`), '2003' = sum(`2003`), '2004' = sum(`2004`), '2005' = sum(`2005`), '2006' = sum(`2006`), '2007' = sum(`2007`), '2008' = sum(`2008`), '2009' = sum(`2009`), '2010' = sum(`2010`), '2011' = sum(`2011`),
+                '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`))
+  })   
+  
+  
+  tidy_allPapers <-  reactive ({
+    
+    gather(data = allPapers(), key = year, value = papers, -number)
+    
+  })
+  
+ 
    ####  group entries by selected criterion  ################
    
    allPapers_summarised <- reactive ({
@@ -492,75 +558,166 @@ server <- function(input, output) {
        '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`))
    })   
    
-  
+  tidy_allPapers_summarised <-  reactive ({  
+    
+    gather(data = allPapers_summarised(), 
+           key = year, value = papers, -number, -.data[[input$group]])
+    
+  })
   
   #################  transform "papers by year" dataset (papers_all_years_df()) into numbers of papers published each year relative to year of finishing PhD (years out)
   
   papers_years_out_df <- reactive ({
     
-    tidy_df <- papers_all_years_df() |>
+    papers_years_out_df <- papers_all_years_df() |>
         pivot_longer(
         cols = starts_with("2"),
         names_to = "year",
         values_to = "papers",
         values_drop_na = TRUE)
   
-  tidy_df <- transform(tidy_df, year = as.numeric(year))
+    papers_years_out_df <- transform(papers_years_out_df, year = as.numeric(year))
   
-  tidy_df <- mutate(tidy_df, years_out = year - finish)
+    papers_years_out_df <- mutate(papers_years_out_df, years_out = year - finish)
   
-  full_metric_list <- c('id', 'gender', 'fellowship', 'job')
+    full_metric_list <- c('id', 'gender', 'fellowship', 'job')
   
-  tidy_df <- tidy_df |> 
-    mutate(across(full_metric_list, ~as.factor(.)))
-  
-  tidy_df <- tidy_df |>
-    mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
-  
-  as_tibble(tidy_df)
+    papers_years_out_df <- papers_years_out_df |> 
+      mutate(across(full_metric_list, ~as.factor(.))) |>
+      mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
   
   })
+  
+  
+  papers_years_out_all_trainees <- reactive ({
+    
+    papers_years_out_df() |> group_by(years_out) |>
+    summarise(number = n(), papers = sum(papers)) |>
+    mutate(avg_papers = papers/number)
+  
+  })
+  
   
   ############.  subset  papers_years_out by list of jobs ##########
-  
-  papers_years_out_jobs <- reactive ({
-  
-  job_list <- input$checkGroup
-  
-  papers_years_out_jobs <- filter(papers_years_out_df(), job %in% job_list)
-  
-  as_tibble(papers_years_out_jobs)
-  
-  })
-  
-  #############   calculate total number of papers for each value of years_out and grouping  #########
-  
+    
   papers_years_out_summarised_df <- reactive ({
   
-    tidy_sum <- papers_years_out_jobs() |> 
+    job_list <- input$checkGroup
+  
+    papers_years_out_summarised_df <- filter(papers_years_out_df(), job %in% job_list) |>
       group_by(job, years_out) |>
-      summarise(number = n(), papers = sum(papers))
- 
-  as_tibble(tidy_sum)
+      summarise(number = n(), papers = sum(papers)) |>
+      mutate(avg_papers = papers/number)
   
   })
   
-  #############   calculate average number of papers for each value of years_out and grouping  #########
+
   
-  papers_years_out_summarised_averaged_df <- reactive ({
+  
+  ################.  first author code. ################
+
+  
+  ####  sum all first author papers from 2000 - 2023, and make a new variable total_first_author  ################
+  
+  factor_list_fa <- c('id', 'gender', 'fellowship', 'job')
+  double_list <- c('total_first_author', 'enter_date', 'finish')
+  
+  first_author_total <- reactive ({
     
-    tidy_sum_avg <- mutate(papers_years_out_summarised_df(), avg_papers = papers/number)
+    FirstAuthor() |> 
+      rowwise() |> 
+      mutate(total_first_author = sum(c_across(starts_with("2")), na.rm=T)) |> 
+      mutate(across(factor_list_fa, ~as.factor(.))) |>
+      mutate(across(double_list, ~as.double(.))) |>
+      mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
+    
+  }) 
   
-  as_tibble(tidy_sum_avg)
   
+  ####  group entries by selected criterion  ################
+  
+  first_author_summarised <- reactive ({
+    
+    first_author_total() |> 
+      group_by(.data[[input$group]]) |> 
+      summarise(number = n(), '2000' = sum(`2000`), '2001' = sum(`2001`), '2002' = sum(`2002`), '2003' = sum(`2003`), '2004' = sum(`2004`), '2005' = sum(`2005`), '2006' = sum(`2006`), '2007' = sum(`2007`), '2008' = sum(`2008`), '2009' = sum(`2009`), '2010' = sum(`2010`), '2011' = sum(`2011`),
+                '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`), '2022' = sum(`2022`), '2023' = sum(`2023`))
+  })   
+  
+  
+  
+  #################  transform "first authors" dataset (first_author_total) into numbers of first-author papers published each year relative to year of finishing PhD (years out)
+  
+  first_author_years_out_df <- reactive ({
+    
+    first_author_years_out_df <- first_author_total() |>
+      pivot_longer(
+        cols = starts_with("2"),
+        names_to = "year",
+        values_to = "first_author_papers",
+        values_drop_na = TRUE)
+    
+    first_author_years_out_df <- transform(first_author_years_out_df, year = as.numeric(year))
+    
+    first_author_years_out_df <- mutate(first_author_years_out_df, years_out = year - finish)
+    
+    full_metric_list_first_author <- c('id', 'gender', 'fellowship', 'job')
+    
+    first_author_years_out_df <- first_author_years_out_df |> 
+      mutate(across(full_metric_list_first_author, ~as.factor(.))) |>
+      mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
+    
   })
-   
+  
+  
+  ############### first author papers for all trainees. ################
+  
+  first_author_years_out_all_trainees <- reactive ({
+    
+    first_author_years_out_df() |> group_by(years_out) |>
+      summarise(number = n(), first_author_papers = sum(first_author_papers)) |>
+      mutate(avg_first_author_papers = first_author_papers/number)
+    
+  })
+  ############.  subset  papers_years_out by list of jobs ##########
+  
+  first_author_years_out_summarised_df <- reactive ({
+    
+    job_list <- input$checkGroup
+    
+    first_author_years_out_summarised_df <- filter(first_author_years_out_df(), job %in% job_list) |>
+      group_by(job, years_out) |>
+      summarise(number = n(), first_author_papers = sum(first_author_papers))|>
+      mutate(avg_first_author_papers = first_author_papers/number)
+    
+  })
+  
+
+  
+  
    ###############   produce tables  ####################
    
   output$testTable <- DT::renderDataTable({
     
     #papers_all_years_df()
-    all_df_papers_sum()
+    #all_df_papers_sum()
+    #first_author_years_out_df()
+    #first_author_total()
+    #first_author_summarised()
+    #FirstAuthor()
+    #allPapers_summarised()
+    tidy_metrics_summarised()
+    
+  })
+  
+  output$testTable2 <- DT::renderDataTable({
+    
+    #papers_years_out_df()
+    #papers_years_out_summarised_df()
+    #papers_all_years_df()
+    tidy_metrics_all()
+    #allPapers()
+    
     
   })
   
@@ -592,15 +749,9 @@ server <- function(input, output) {
    
  })
 
- 
-  output$yearsOutTable <- DT::renderDataTable({
-    
-    papers_years_out_summarised_averaged_df() |>
-      rename("years since PhD" = years_out, "number in cohort" = number, "total papers" = papers, "average # of papers" = avg_papers)
-    
-  })
   
-  ############# make plots ##################
+  ############# make box plots of metric data. ##################
+  
   
   output$plotJobsPie <- renderPlot({
     
@@ -644,7 +795,6 @@ server <- function(input, output) {
     
   }) 
   
-  
   output$plotCitationsBox <- renderPlot({
     
     all_df_papers_sum() |>
@@ -652,7 +802,7 @@ server <- function(input, output) {
       ggplot(aes(x = .data[[input$group]], y = number_of_citations)) + 
       geom_boxplot() +
       geom_jitter(shape=16, position=position_jitter(0.2)) +
-      #ylim(0, 15) + 
+      ylim(0, 15000) + 
       theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))
     
   }) 
@@ -670,39 +820,52 @@ server <- function(input, output) {
   }) 
   
   
+  
+  ############# make plots of papers data per year  ##################
+  
   output$plotPapers_all_years <- renderPlot({
     
-    tidy_metrics <- gather(data = allPapers_summarised(), 
-                           key = year, value = papers, -number, -.data[[input$group]])
+    ggplot() +
+      
+      geom_line(data = tidy_allPapers(), aes(x = year, y = papers, group = 1), size = 1.2) +
+      
+      geom_line(data = tidy_allPapers_summarised(), aes(x = year, y = papers,
+                                                    group = .data[[input$group]], color = .data[[input$group]]), size = 1.2) +
     
-    ggplot(tidy_metrics) +
-      geom_line(aes(x = year, y = papers, 
-                    group = .data[[input$group]], color = .data[[input$group]])) +
+      
       theme_minimal() +
+      
       theme(panel.border = element_blank(), 
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(), 
             axis.line = element_line(colour = "gray")) +
+      
       ylab("number of papers") +
       theme(axis.title = element_text(size = 15), axis.text = element_text(size = 10)) +
       
-      
-      ggtitle("Number of papers published each year by BU Bioinformatics alumni ", 
+      ggtitle("Number of papers published each year by BU Bioinformatics alumni - black line, all trainees", 
       ) + 
+      
       theme(plot.title = element_text(size = 15, hjust = 0.5), plot.subtitle = element_text(size = 15, hjust = 0.5))
     
   }) 
   
   
+  ############# make plots of papers per year since PhD  ##################
+  
   output$plotYearsOutPapersAveraged <- renderPlot({
-    
-    papers_years_out_summarised_averaged_df() |> 
       
-      ggplot(aes(x = years_out, y = avg_papers,
-                 group = job, color = job)) +
-      geom_line()+
-      xlim(-10, NA) +
+      ggplot() +
+      
+        geom_line(data = papers_years_out_all_trainees(), aes(x = years_out, y = avg_papers), linewidth = 1.2) +
+      
+        geom_line(data = papers_years_out_summarised_df(), aes(x = years_out, y = avg_papers,
+          group = job, color = job), linewidth = 1.2) +
+      
+      xlim(-10, 15) +
+      
       theme_minimal() +
+        
       theme(panel.border = element_blank(), 
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(), 
@@ -714,22 +877,27 @@ server <- function(input, output) {
       ylab("average number of papers") +
       theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
       
-      ggtitle("Average number of papers published each year since PhD", 
+      ggtitle("Average number of papers published each year since PhD - black line, all trainees", 
       ) + 
       theme(plot.title = element_text(size = 15, hjust = 0.5), plot.subtitle = element_text(size = 15, hjust = 0.5))
     
+
   }) 
   
   
   output$plotYearsOutPapers <- renderPlot({
-    
-    papers_years_out_summarised_df() |> 
-    
-    ggplot(aes(x = years_out, y = papers,
-               group = job, color = job)) +
-    geom_line()+
-      xlim(-10, NA) +
+      
+    ggplot() +
+      
+      geom_line(data = papers_years_out_all_trainees(), aes(x = years_out, y = papers), linewidth = 1.2) +
+      
+      geom_line(data = papers_years_out_summarised_df(), aes(x = years_out, y = papers,
+                                                             group = job, color = job), linewidth = 1.2) +
+      
+    xlim(-10, NA) +
+      
     theme_minimal() +
+      
     theme(panel.border = element_blank(), 
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(), 
@@ -741,13 +909,77 @@ server <- function(input, output) {
     ylab("total number of papers") +
       theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
       
-    ggtitle("Total number of papers published each year since PhD", 
+    ggtitle("Total number of papers published each year since PhD - black line, all trainees", 
       ) + 
       theme(plot.title = element_text(size = 15, hjust = 0.5), plot.subtitle = element_text(size = 15, hjust = 0.5))
   
   }) 
   
+
   
+  ############# make plots of first-author papers per year since PhD  ##################
+  
+  
+  output$plotFirstAuthorsAveraged  <- renderPlot({
+      
+      ggplot() +
+      
+      geom_line(data = first_author_years_out_all_trainees(), aes(x = years_out, y = avg_first_author_papers), linewidth = 1.2) +
+      
+      geom_line(data = first_author_years_out_summarised_df(), aes(x = years_out, y = avg_first_author_papers,
+                                                             group = job, color = job), linewidth = 1.2) +
+      
+      xlim(-10, NA) +
+      
+      theme_minimal() +
+      
+      theme(panel.border = element_blank(), 
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(), 
+            axis.line = element_line(colour = "gray")) +
+      
+      xlab("years since PhD") +
+      theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+      
+      ylab("first author papers") +
+      theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+      
+      ggtitle("average number of first author papers published each year since PhD - black line, all trainees", 
+      ) + 
+      theme(plot.title = element_text(size = 15, hjust = 0.5), plot.subtitle = element_text(size = 15, hjust = 0.5))
+    
+  }) 
+  
+output$plotFirstAuthor  <- renderPlot({
+  
+    ggplot() +
+    
+    geom_line(data = first_author_years_out_all_trainees(), aes(x = years_out, y = first_author_papers), linewidth = 1.2) +
+    
+    geom_line(data = first_author_years_out_summarised_df(), aes(x = years_out, y = first_author_papers,
+                                                                 group = job, color = job), linewidth = 1.2) +
+    
+    xlim(-10, NA) +
+    
+    theme_minimal() +
+    
+    theme(panel.border = element_blank(), 
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+          axis.line = element_line(colour = "gray")) +
+    
+    xlab("years since PhD") +
+    theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+    
+    ylab("first author papers") +
+    theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+    
+    ggtitle("total number of first author papers published each year since PhD - black line, all trainees", 
+    ) + 
+    theme(plot.title = element_text(size = 15, hjust = 0.5), plot.subtitle = element_text(size = 15, hjust = 0.5))
+  
+}) 
+
 }
 
 shinyApp(ui, server)
