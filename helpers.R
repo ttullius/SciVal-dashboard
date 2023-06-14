@@ -11,8 +11,9 @@ require(stats)
 ############ function to read in the csv file containing trainee names, Scopus ID's,and other metadata (start, finish, gender, URM, etc.)
 
 load_file <- function(path) {
-  vroom::vroom(path, delim = ",")
-  
+
+  vroom::vroom(path, delim = ",",  show_col_types = FALSE, .name_repair = "unique_quiet")
+
 }
 
 
@@ -51,7 +52,8 @@ load_file <- function(path) {
     df_names <- xmlToDataFrame(my_xml, homogeneous = NA,
                                collectNames = FALSE, nodes = getNodeSet(my_xml, "//name"))
     
-    df_SciValMetric <- bind_cols(df_names, df_id, df_metrics)
+    #df_SciValMetric <- bind_cols(df_names, df_id, df_metrics)
+    df_SciValMetric <- bind_cols(df_names, df_id, df_metrics, .name_repair = c("unique_quiet"))
     colnames(df_SciValMetric) <- c("name", "id", "metric", metric_name)
     
     df_SciValMetric <- as_tibble(df_SciValMetric)
@@ -94,7 +96,7 @@ load_file <- function(path) {
       df_dataSource <- xmlToDataFrame(my_xml, colClasses = c("character", "integer", "integer", "character"), homogeneous = NA,
                                       collectNames = FALSE, nodes = getNodeSet(my_xml, "//dataSource"))
       
-      df_allYearSciValMetric <- bind_cols(df_names, df_id, df_years)
+      df_allYearSciValMetric <- bind_cols(df_names, df_id, df_years, .name_repair = c("unique_quiet"))
     
       colnames(df_allYearSciValMetric, do.NULL = TRUE)
       colnames(df_allYearSciValMetric) <- c("name", "id", df_dataSource$metricStartYear:df_dataSource$metricEndYear)

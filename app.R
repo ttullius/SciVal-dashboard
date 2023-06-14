@@ -23,7 +23,8 @@ library(leaflet.extras)
 library(shinythemes)
 library(thematic)
 
-# Source helper functions ----
+
+############      SOURCE HELPER FUNCTIONS   #######################
 
 source("helpers.R")
 
@@ -34,10 +35,11 @@ thematic_shiny(font = "auto")
 
 # import location data  ----
 
-data_locations <- read.csv("trainee_locations.csv")
+#data_locations <- read.csv("trainee_locations.csv")
+data_locations <- vroom::vroom("trainee_locations.csv", delim = ",",  show_col_types = FALSE, .name_repair = "unique_quiet")
 
 
-# Define ui  ----
+##################   UI    ###############################
 
 ui <- dashboardPage(
   dashboardHeader(title = "BU Bioinformatics PhD"),
@@ -54,11 +56,17 @@ ui <- dashboardPage(
                 accept = ".csv"
       ),
       
+      fileInput("file3",
+                label = h3("Choose CSV File with number of last/corresponding author papers:"),
+                accept = ".csv"
+      ),
+      
       radioButtons("group", label = h3("Group metrics data by:"),
                    choices = c(Cohort = "enter_date",
                                Gender = "gender",
                                Job = "job",
-                               Fellowship = "fellowship"),
+                               Fellowship = "fellowship",
+                               URM = "urm"),
                    selected = "enter_date"
       ),
       
@@ -77,7 +85,7 @@ ui <- dashboardPage(
       
       fluidRow(
      
-        h2("complete program (2000-2021)", align = "center"),
+        h2("complete program (2000-2023)", align = "center"),
         
         infoBoxOutput("PhDs"),
         infoBoxOutput("total_papers"),
@@ -92,6 +100,7 @@ ui <- dashboardPage(
         infoBoxOutput("ave_t_to_d"),
         infoBoxOutput("papers_mean"),
         infoBoxOutput("h_index_mean"),
+        infoBoxOutput("first_author_papers_mean"),
         
        ),
       
@@ -109,7 +118,7 @@ ui <- dashboardPage(
       
       fluidRow(
         
-        h2("past 10 years (2011-2021)", align = "center"),
+        h2("past 10 years (2013-2022)", align = "center"),
         
           infoBoxOutput("citations_mean"),
           infoBoxOutput("fwci_mean"),
@@ -126,12 +135,14 @@ ui <- dashboardPage(
         
         tabPanel("jobs",h2("What are our PhD graduates doing now?"),plotOutput("plotJobsPie")),
         
-        tabPanel("test", DT::dataTableOutput("testTable")),
+        #tabPanel("test", DT::dataTableOutput("testTable")),
         
-        tabPanel("test2", DT::dataTableOutput("testTable2")),
+        #tabPanel("test2", DT::dataTableOutput("testTable2")),
         
         tabPanel("trainees", DT::dataTableOutput("traineesMetricsTable")),
+       
         tabPanel("metrics", DT::dataTableOutput("metricsTable")),
+        
         tabPanel("metrics plots", 
                 
                 tags$hr(),
@@ -167,43 +178,40 @@ ui <- dashboardPage(
                  
                  tags$hr(),
                  
-                 plotOutput("plotFirstAuthorsAveraged"), 
+                 plotOutput("plotFirstAuthorAveraged"), 
                  
                  tags$hr(),
                  
                  plotOutput("plotFirstAuthor")),
+        
+        tabPanel("last/corresponding author papers", 
+                 
+                 tags$hr(),
+                 
+                 plotOutput("plotLastCorrespAuthorAveraged"), 
+                 
+                 tags$hr(),
+                 
+                 plotOutput("plotLastCorrespAuthor")),
         
        ),
   )))
 
 
 
-# Define server logic  ----
+##################          SERVER     ####################################
+
 
 server <- function(input, output) {
   
-  
-# Define the color for  graduates' jobs  ----
-  
-  pal2 <- colorFactor(
-    palette = c('blue', 'yellow', 'red', 'green'),
-    domain = data_locations$job
-  )
-  
-# create the map  ----
-  
-  output$mymap <- renderLeaflet({
-    leaflet(data_locations) |> 
-      setView(lng = -99, lat = 45, zoom = 2)  %>% #setting the view over ~ center of North America
-      addTiles() |> 
-      #addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(job), label = ~as.character(paste0("Job: ", sep = " ", job)), color = ~pal2(job), fillOpacity = 0.5)
-      #addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(paste0(company, sep = ", ",city)), label = ~as.character(job), color = ~pal2(job), fillOpacity = 0.5)
-    addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(paste0(city)), label = ~as.character(job), color = ~pal2(job), fillOpacity = 0.5)
-  })
-  
 
 
-  #########  Use the load_file helper function (from helpers.R file) to load the user-supplied file that contains trainee metadata (Scopus ID, gender, enter date, finish date, job type. etc.)  #####
+  #########  Use the load_file helper function (from helpers.R file) to load user-supplied files. ##################
+  
+  #########  One file contains trainee metadata (Scopus ID, gender, enter date, finish date, job type. etc.).   ##########
+  
+  #########  Additional files can be loaded that contain first-author paper data, and last/corresponding author paper data.   ########## 
+  
   
   Trainees <- reactive({
     
@@ -220,49 +228,33 @@ server <- function(input, output) {
     load_file(input$file2$datapath)
   }) 
   
-  ###### produce reactive variables for Info Boxes in Dashboard.  ####
   
-  trainee_support <- reactive({
+  LastCorrespAuthor <- reactive({
     
-    trainee_support <- Trainees() |> 
-      group_by(fellowship) |> 
-      summarise(n = n())
-  })
-  
-  IGERT_no <- reactive({
-    IGERT_no <- 
-      filter(trainee_support(), fellowship == "IGERT")$n
-  })
-  
-  T32_no <- reactive({
-    T32_no <- 
-      filter(trainee_support(), fellowship == "T32")$n
-  })
-  
-  GPP_no <- reactive({
-    GPP_no <- 
-      filter(trainee_support(), fellowship == "GPP")$n
-  })
+    req(input$file3)
     
-  U_fellow_no <- reactive({
-    U_fellow_no <- 
-      filter(trainee_support(), fellowship == "University Fellow")$n
+    load_file(input$file3$datapath)
+  }) 
+  
+  
+  ######      produce reactive variables for Info Boxes in Dashboard.  ####
+  
+  total_papers <- reactive({
+    all_papers <- papers_years_out_df()
+    
+    total_papers <- all_papers |>
+      summarise(sum(papers, na.rm = TRUE))
   })
   
- 
-  time_to_degree_mean <- reactive({
+  
+   time_to_degree_mean <- reactive({
     time_to_degree_mean <- 
       metrics_df() |> 
       summarise(mean_months = mean(months)/12) |>
       mutate_if(is.numeric, round, digits = 1)
   })
   
-  citations_mean <- reactive({
-    citations_mean <- metrics_df() |> 
-      summarise(mean_cites = mean(number_of_citations)) |>
-      mutate_if(is.numeric, round, digits = 0)
-  })
-  
+   
   papers_mean <- reactive({
     all_papers <- papers_years_out_df()
     
@@ -274,12 +266,6 @@ server <- function(input, output) {
     papers_mean <- format(round(papers_mean, 1), nsmall = 1)
   })
   
-  total_papers <- reactive({
-    all_papers <- papers_years_out_df()
-    
-    total_papers <- all_papers |>
-      summarise(sum(papers, na.rm = TRUE))
-  })
   
   h_index_mean <- reactive({
     h_index_mean <- metrics_df() |> 
@@ -287,16 +273,68 @@ server <- function(input, output) {
       mutate_if(is.numeric, round, digits = 1)
   })
   
+  
+  first_author_papers_mean <- reactive({
+    all_first_author_papers <- first_author_years_out_df()
+    
+    total_first_author_papers <- all_first_author_papers |>
+      summarise(sum(first_author_papers, na.rm = TRUE))
+    
+    first_author_papers_mean <- total_first_author_papers/nrow(Trainees())
+    
+    first_author_papers_mean <- format(round(first_author_papers_mean, 1), nsmall = 1)
+  })
+  
+  
+  trainee_support <- reactive({
+    
+    trainee_support <- Trainees() |> 
+      group_by(fellowship) |> 
+      summarise(n = n())
+  })
+  
+  T32_no <- reactive({
+    T32_no <- 
+      filter(trainee_support(), fellowship == "T32")$n
+  })
+  
+  
+  IGERT_no <- reactive({
+    IGERT_no <- 
+      filter(trainee_support(), fellowship == "IGERT")$n
+  })
+  
+  
+  GPP_no <- reactive({
+    GPP_no <- 
+      filter(trainee_support(), fellowship == "GPP")$n
+  })
+    
+  
+  U_fellow_no <- reactive({
+    U_fellow_no <- 
+      filter(trainee_support(), fellowship == "University Fellow")$n
+  })
+  
+  
+  citations_mean <- reactive({
+    citations_mean <- metrics_df() |> 
+      summarise(mean_cites = mean(number_of_citations)) |>
+      mutate_if(is.numeric, round, digits = 0)
+  })
+  
+ 
   fwci_mean <- reactive({
     fwci_mean <- metrics_df() |> 
       summarise(mean_fwci = mean(FWCI)) |>
       mutate_if(is.numeric, round, digits = 1)
   })
   
-  ###########   END produce reactive variables for Info Boxes in Dashboard.  ####
+  
+  ###########   END produce reactive variables for Info Boxes in Dashboard  ####
   
   
-  ###########.   produce Info Boxes.   ####################
+  ###########.   produce Info Boxes   ####################
   
   output$PhDs <- renderInfoBox({ 
     infoBox(
@@ -342,9 +380,20 @@ server <- function(input, output) {
     )
   })
   
+  
+ 
   output$h_index_mean <- renderInfoBox({
     infoBox(
       "average H-index per trainee", paste0(h_index_mean()), 
+      icon = icon("person"),
+      color = "yellow"
+    )
+  })
+  
+  
+  output$first_author_papers_mean <- renderInfoBox({
+    infoBox(
+      "average number of first-author papers per trainee", paste0(first_author_papers_mean()), 
       icon = icon("person"),
       color = "yellow"
     )
@@ -429,8 +478,8 @@ server <- function(input, output) {
     
   })
   
-  ###  construct a list of Scopus ID's from the trainee metadata file for submitting the SciVal API calls   #######
-  ###  uses get_ID_list function in helpers.R
+  ###  from the trainee metadata file, construct a list of Scopus ID's for submitting SciVal API calls   #######
+  ###  uses get_ID_list function in helpers.R.    
   
   ID_list <- reactive ({
     
@@ -490,7 +539,7 @@ server <- function(input, output) {
     
   }) 
   
-  ####  sum all papers from 2000 - 2021, and make a new variable total_papers  ################
+  ####  sum all papers from year 2000 on, and make a new variable total_papers  ################
   
   all_df_papers_sum <- reactive ({
     
@@ -514,7 +563,8 @@ server <- function(input, output) {
   
 
   
-  ####  Call the makeSciValPapersAllYearsDF helper function to retrieve number of papers by year for each trainee   ###########
+  ####            Call the makeSciValPapersAllYearsDF helper function to retrieve number of papers by year for each trainee   ###########
+  ##############  uses functions in helpers.R
   
    papers_all_years_df <- reactive ({
      
@@ -537,7 +587,7 @@ server <- function(input, output) {
     
     papers_all_years_df() |> 
       summarise(number = n(), '2000' = sum(`2000`), '2001' = sum(`2001`), '2002' = sum(`2002`), '2003' = sum(`2003`), '2004' = sum(`2004`), '2005' = sum(`2005`), '2006' = sum(`2006`), '2007' = sum(`2007`), '2008' = sum(`2008`), '2009' = sum(`2009`), '2010' = sum(`2010`), '2011' = sum(`2011`),
-                '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`))
+                '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`), '2022' = sum(`2022`))
   })   
   
   
@@ -555,7 +605,7 @@ server <- function(input, output) {
      papers_all_years_df() |> 
        group_by(.data[[input$group]]) |> 
        summarise(number = n(), '2000' = sum(`2000`), '2001' = sum(`2001`), '2002' = sum(`2002`), '2003' = sum(`2003`), '2004' = sum(`2004`), '2005' = sum(`2005`), '2006' = sum(`2006`), '2007' = sum(`2007`), '2008' = sum(`2008`), '2009' = sum(`2009`), '2010' = sum(`2010`), '2011' = sum(`2011`),
-       '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`))
+       '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`), '2022' = sum(`2022`))
    })   
    
   tidy_allPapers_summarised <-  reactive ({  
@@ -614,21 +664,21 @@ server <- function(input, output) {
 
   
   
-  ################.  first author code. ################
+  ################  first author code ################
 
   
   ####  sum all first author papers from 2000 - 2023, and make a new variable total_first_author  ################
   
   factor_list_fa <- c('id', 'gender', 'fellowship', 'job')
-  double_list <- c('total_first_author', 'enter_date', 'finish')
+  double_list_fa <- c('total_first_author', 'enter_date', 'finish')
   
   first_author_total <- reactive ({
     
     FirstAuthor() |> 
       rowwise() |> 
-      mutate(total_first_author = sum(c_across(starts_with("2")), na.rm=T)) |> 
+      mutate(total_first_author = sum(c_across(starts_with("2")), na.rm = T)) |>
       mutate(across(factor_list_fa, ~as.factor(.))) |>
-      mutate(across(double_list, ~as.double(.))) |>
+      #mutate(all_of(double_list_fa, ~as.double(.)))
       mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
     
   }) 
@@ -679,7 +729,9 @@ server <- function(input, output) {
       mutate(avg_first_author_papers = first_author_papers/number)
     
   })
-  ############.  subset  papers_years_out by list of jobs ##########
+  
+  
+  ############.  subset first author papers by list of jobs ##########
   
   first_author_years_out_summarised_df <- reactive ({
     
@@ -694,6 +746,110 @@ server <- function(input, output) {
   
 
   
+  ################  last/corresponding author code    ################
+  
+  
+  ####  sum all last/corresponding author papers from 2000 - 2023, and make a new variable total_last_corresp_author  ################
+  
+  factor_list_fa <- c('id', 'gender', 'fellowship', 'job')
+  double_list <- c('total_last_corresp_author', 'enter_date', 'finish')
+  
+  last_corresp_author_total <- reactive ({
+    
+    LastCorrespAuthor() |> 
+      rowwise() |> 
+      mutate(total_last_corresp_author = sum(c_across(starts_with("2")), na.rm = T)) |> 
+      mutate(across(factor_list_fa, ~as.factor(.))) |>
+      mutate(across(double_list, ~as.double(.))) |>
+      mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
+    
+  }) 
+  
+  
+  ####  group entries by selected criterion  ################
+  
+  last_corresp_author_summarised <- reactive ({
+    
+    last_corresp_author_total() |> 
+      group_by(.data[[input$group]]) |> 
+      summarise(number = n(), '2000' = sum(`2000`), '2001' = sum(`2001`), '2002' = sum(`2002`), '2003' = sum(`2003`), '2004' = sum(`2004`), '2005' = sum(`2005`), '2006' = sum(`2006`), '2007' = sum(`2007`), '2008' = sum(`2008`), '2009' = sum(`2009`), '2010' = sum(`2010`), '2011' = sum(`2011`),
+                '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`), '2022' = sum(`2022`), '2023' = sum(`2023`))
+  })   
+  
+  
+  #################  transform "last/corresponding authors" dataset (last_corresp_author_total) into numbers of last/corresponding-author papers published each year relative to year of finishing PhD (years out)
+  
+  last_corresp_author_years_out_df <- reactive ({
+    
+    last_corresp_author_years_out_df <- last_corresp_author_total() |>
+      pivot_longer(
+        cols = starts_with("2"),
+        names_to = "year",
+        values_to = "last_corresp_author_papers",
+        values_drop_na = TRUE)
+    
+    last_corresp_author_years_out_df <- transform(last_corresp_author_years_out_df, year = as.numeric(year))
+    
+    last_corresp_author_years_out_df <- mutate(last_corresp_author_years_out_df, years_out = year - finish)
+    
+    full_metric_list_last_corresp_author <- c('id', 'gender', 'fellowship', 'job')
+    
+    last_corresp_author_years_out_df <- last_corresp_author_years_out_df |> 
+      mutate(across(full_metric_list_last_corresp_author, ~as.factor(.))) |>
+      mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
+    
+  })
+  
+  
+  ############### last/corresponding author papers for all trainees   ################
+  
+  last_corresp_author_years_out_all_trainees <- reactive ({
+    
+    last_corresp_author_years_out_df() |> group_by(years_out) |>
+      summarise(number = n(), last_corresp_author_papers = sum(last_corresp_author_papers)) |>
+      mutate(avg_last_corresp_author_papers = last_corresp_author_papers/number)
+    
+  })
+  
+  
+  ############  subset last/corresponding author papers by list of jobs     ##########
+  
+  last_corresp_author_years_out_summarised_df <- reactive ({
+    
+    job_list <- input$checkGroup
+    
+    last_corresp_author_years_out_summarised_df <- filter(last_corresp_author_years_out_df(), job %in% job_list) |>
+      group_by(job, years_out) |>
+      summarise(number = n(), last_corresp_author_papers = sum(last_corresp_author_papers)) |>
+      mutate(avg_last_corresp_author_papers = last_corresp_author_papers/number)
+    
+  })
+  
+
+  
+  ##############################          OUTPUT         ######################################
+  
+
+    ###############   produce the map  ####################
+  
+  # Define the color for  graduates' jobs  ----
+  
+  pal2 <- colorFactor(
+    palette = c('blue', 'yellow', 'red', 'green'),
+    domain = data_locations$job
+  )
+  
+  # create the map  ----
+  
+  output$mymap <- renderLeaflet({
+    leaflet(data_locations) |> 
+      setView(lng = -99, lat = 45, zoom = 2)  %>% #setting the view over ~ center of North America
+      addTiles() |> 
+      #addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(job), label = ~as.character(paste0("Job: ", sep = " ", job)), color = ~pal2(job), fillOpacity = 0.5)
+      #addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(paste0(company, sep = ", ",city)), label = ~as.character(job), color = ~pal2(job), fillOpacity = 0.5)
+      addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(paste0(city)), label = ~as.character(job), color = ~pal2(job), fillOpacity = 0.5)
+  })
+  
   
    ###############   produce tables  ####################
    
@@ -706,29 +862,38 @@ server <- function(input, output) {
     #first_author_summarised()
     #FirstAuthor()
     #allPapers_summarised()
-    tidy_metrics_summarised()
+    #last_corresp_author_years_out_summarised_df()
+    #papers_mean()
+    #papers_years_out_df()
+    metrics_df()
+    
     
   })
   
   output$testTable2 <- DT::renderDataTable({
     
-    #papers_years_out_df()
+    
     #papers_years_out_summarised_df()
     #papers_all_years_df()
-    tidy_metrics_all()
     #allPapers()
+    #last_corresp_author_total()
+    #first_author_total()
+    first_author_papers_mean()
+    #first_author_years_out_df()
     
     
   })
   
  
-   output$researcherTable <- DT::renderDataTable({
+  output$traineesMetricsTable <- DT::renderDataTable({
     
-    researcherTable <- Trainees() |>
-      rename("last" = author, "SciVal ID" = id, "cohort" = enter_date) |> 
-      select(-starts_with("20"), -ends_with("1"), -"zip_code")
-    
+    df <- metrics_df() |> 
+      select(-id, -starts_with("2"), -zip_code) |>
+      mutate(across(c('FWCI'), round, 1)) |>
+      rename("last" = author, "cohort" = enter_date, "citations" = number_of_citations, "H-index" = H_index, "number of papers" = number_of_papers)
+   
  })
+
   
   output$metricsTable <- DT::renderDataTable({
     
@@ -740,17 +905,19 @@ server <- function(input, output) {
   })
   
   
-  output$traineesMetricsTable <- DT::renderDataTable({
-    
-    df <- metrics_df() |> 
-      select(-id, -starts_with("2"), -zip_code) |>
-      mutate(across(c('FWCI'), round, 1)) |>
-      rename("last" = author, "cohort" = enter_date, "citations" = number_of_citations, "H-index" = H_index, "number of papers" = number_of_papers)
-   
- })
-
+  #####################.   NOT USED.    #####################
   
-  ############# make box plots of metric data. ##################
+  output$researcherTable <- DT::renderDataTable({
+    
+    researcherTable <- Trainees() |>
+      rename("last" = author, "SciVal ID" = id, "cohort" = enter_date) |> 
+      select(-starts_with("20"), -ends_with("1"), -"zip_code")
+    
+  })
+  
+  
+  
+  #############    make box plots of metric data     ##################
   
   
   output$plotJobsPie <- renderPlot({
@@ -821,7 +988,8 @@ server <- function(input, output) {
   
   
   
-  ############# make plots of papers data per year  ##################
+  #############     make plots of papers data per year     ##################
+  
   
   output$plotPapers_all_years <- renderPlot({
     
@@ -851,7 +1019,9 @@ server <- function(input, output) {
   }) 
   
   
-  ############# make plots of papers per year since PhD  ##################
+  
+  #############       make plots of papers per year since PhD       ##################
+  
   
   output$plotYearsOutPapersAveraged <- renderPlot({
       
@@ -862,7 +1032,7 @@ server <- function(input, output) {
         geom_line(data = papers_years_out_summarised_df(), aes(x = years_out, y = avg_papers,
           group = job, color = job), linewidth = 1.2) +
       
-      xlim(-10, 15) +
+      xlim(-10, NA) +
       
       theme_minimal() +
         
@@ -917,10 +1087,10 @@ server <- function(input, output) {
   
 
   
-  ############# make plots of first-author papers per year since PhD  ##################
+  #############      make plots of first-author papers per year since PhD       ##################
   
   
-  output$plotFirstAuthorsAveraged  <- renderPlot({
+  output$plotFirstAuthorAveraged  <- renderPlot({
       
       ggplot() +
       
@@ -980,6 +1150,71 @@ output$plotFirstAuthor  <- renderPlot({
   
 }) 
 
+
+
+#############      make plots of last/corresponding author papers per year since PhD        ##################
+
+
+output$plotLastCorrespAuthorAveraged  <- renderPlot({
+  
+  ggplot() +
+    
+    geom_line(data = last_corresp_author_years_out_all_trainees(), aes(x = years_out, y = avg_last_corresp_author_papers), linewidth = 1.2) +
+    
+    geom_line(data = last_corresp_author_years_out_summarised_df(), aes(x = years_out, y = avg_last_corresp_author_papers,
+                                                                 group = job, color = job), linewidth = 1.2) +
+    
+    xlim(-10, NA) +
+    
+    theme_minimal() +
+    
+    theme(panel.border = element_blank(), 
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+          axis.line = element_line(colour = "gray")) +
+    
+    xlab("years since PhD") +
+    theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+    
+    ylab("last/corrrsponding author papers") +
+    theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+    
+    ggtitle("average number of last/corresponding author papers published each year since PhD - black line, all trainees", 
+    ) + 
+    theme(plot.title = element_text(size = 15, hjust = 0.5), plot.subtitle = element_text(size = 15, hjust = 0.5))
+  
+}) 
+
+output$plotLastCorrespAuthor  <- renderPlot({
+  
+  ggplot() +
+    
+    geom_line(data = last_corresp_author_years_out_all_trainees(), aes(x = years_out, y = last_corresp_author_papers), linewidth = 1.2) +
+    
+    geom_line(data = last_corresp_author_years_out_summarised_df(), aes(x = years_out, y = last_corresp_author_papers,
+                                                                 group = job, color = job), linewidth = 1.2) +
+    
+    xlim(-10, NA) +
+    
+    theme_minimal() +
+    
+    theme(panel.border = element_blank(), 
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(), 
+          axis.line = element_line(colour = "gray")) +
+    
+    xlab("years since PhD") +
+    theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+    
+    ylab("last/correspoonding author papers") +
+    theme(axis.title = element_text(size = 12), axis.text = element_text(size = 10)) +
+    
+    ggtitle("total number of last/corresponding author papers published each year since PhD - black line, all trainees", 
+    ) + 
+    theme(plot.title = element_text(size = 15, hjust = 0.5), plot.subtitle = element_text(size = 15, hjust = 0.5))
+  
+}) 
 }
+
 
 shinyApp(ui, server)
