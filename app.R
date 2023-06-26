@@ -35,7 +35,6 @@ thematic_shiny(font = "auto")
 
 # import location data  ----
 
-#data_locations <- read.csv("trainee_locations.csv")
 data_locations <- vroom::vroom("trainee_locations.csv", delim = ",",  show_col_types = FALSE, .name_repair = "unique_quiet")
 
 
@@ -63,6 +62,8 @@ ui <- dashboardPage(
       
       radioButtons("group", label = h3("Group metrics data by:"),
                    choices = c(Cohort = "enter_date",
+                               Mentor = "mentor",
+                               Campus = "campus",
                                Gender = "gender",
                                Job = "job",
                                Fellowship = "fellowship",
@@ -135,9 +136,9 @@ ui <- dashboardPage(
         
         tabPanel("jobs",h2("What are our PhD graduates doing now?"),plotOutput("plotJobsPie")),
         
-        #tabPanel("test", DT::dataTableOutput("testTable")),
+        tabPanel("test", DT::dataTableOutput("testTable")),
         
-        #tabPanel("test2", DT::dataTableOutput("testTable2")),
+        tabPanel("test2", DT::dataTableOutput("testTable2")),
         
         tabPanel("trainees", DT::dataTableOutput("traineesMetricsTable")),
        
@@ -155,7 +156,11 @@ ui <- dashboardPage(
                  plotOutput("plotCitationsBox"), 
                  
                 tags$hr(),
-                 plotOutput("plotH_indexBox")),
+                 plotOutput("plotH_indexBox"),
+        
+                tags$hr(),
+                plotOutput("plotTime_to_degree_Box")),
+      
 
         tabPanel("papers by year", 
                  
@@ -533,6 +538,9 @@ server <- function(input, output) {
     metrics_df <- metrics_df |> 
       mutate(across(double_list, ~as.double(.)))
     
+    metrics_df <- metrics_df |>
+    mutate(time_to_degree = months/12)
+    
     metrics_df <- metrics_df |> 
       mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
     
@@ -555,8 +563,8 @@ server <- function(input, output) {
       
       all_df_papers_sum() |>
         group_by(.data[[input$group]]) |> 
-        summarise(number = n(), average_number_of_papers = mean(total_papers), average_number_of_citations = mean(number_of_citations), average_FWCI = mean(FWCI), average_H_index = mean(H_index)) |>
-        mutate(across(c('average_FWCI'), round, 1)) |>
+        summarise(number = n(), average_years_to_degree = mean(time_to_degree), average_number_of_papers = mean(total_papers), average_number_of_citations = mean(number_of_citations), average_FWCI = mean(FWCI), average_H_index = mean(H_index)) |>
+        mutate(across(c('average_FWCI', 'average_time_to_degree'), round, 1)) |>
         mutate(across(c('average_number_of_citations', 'average_H_index','average_number_of_papers' ), round, 0))
     
   })
@@ -856,7 +864,7 @@ server <- function(input, output) {
   output$testTable <- DT::renderDataTable({
     
     #papers_all_years_df()
-    #all_df_papers_sum()
+   
     #first_author_years_out_df()
     #first_author_total()
     #first_author_summarised()
@@ -878,8 +886,9 @@ server <- function(input, output) {
     #allPapers()
     #last_corresp_author_total()
     #first_author_total()
-    first_author_papers_mean()
+    #first_author_papers_mean()
     #first_author_years_out_df()
+    all_df_papers_sum()
     
     
   })
@@ -888,9 +897,9 @@ server <- function(input, output) {
   output$traineesMetricsTable <- DT::renderDataTable({
     
     df <- metrics_df() |> 
-      select(-id, -starts_with("2"), -zip_code) |>
+      select(-id, -first, -starts_with("2"), -zip_code, -additional_position) |>
       mutate(across(c('FWCI'), round, 1)) |>
-      rename("last" = author, "cohort" = enter_date, "citations" = number_of_citations, "H-index" = H_index, "number of papers" = number_of_papers)
+      rename("first" = first_name, "last" = author, "cohort" = enter_date, "citations" = number_of_citations, "H-index" = H_index, "number of papers" = number_of_papers)
    
  })
 
@@ -899,9 +908,7 @@ server <- function(input, output) {
     
     metricsTable <- 
       metrics_summarised() 
-    #|> 
-    #  rename("cohort" = enter_date, "number in cohort" = number, "mean # of citations" = mean_number_of_citations, "mean H-index" = mean_H_index, "mean FWCI" = mean_FWCI, "mean # of papers" = mean_number_of_papers)
-    
+   
   })
   
   
@@ -943,6 +950,7 @@ server <- function(input, output) {
       
       ggplot(aes(x = .data[[input$group]], y = total_papers)) + 
       geom_boxplot(outlier.shape = NA) +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
       geom_jitter(shape=16, position=position_jitter(0.2)) +
       ylim(0, 100) + 
       theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))
@@ -954,8 +962,9 @@ server <- function(input, output) {
     all_df_papers_sum() |>
       
       ggplot(aes(x = .data[[input$group]], y = FWCI)) + 
-      geom_hline(yintercept=1, color = "red") +
+      geom_hline(yintercept = 1, color = "red") +
       geom_boxplot() +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
       geom_jitter(shape=16, position=position_jitter(0.2)) +
       ylim(0, 15) + 
       theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))
@@ -968,6 +977,7 @@ server <- function(input, output) {
       
       ggplot(aes(x = .data[[input$group]], y = number_of_citations)) + 
       geom_boxplot() +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
       geom_jitter(shape=16, position=position_jitter(0.2)) +
       ylim(0, 15000) + 
       theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))
@@ -980,6 +990,21 @@ server <- function(input, output) {
       
       ggplot(aes(x = .data[[input$group]], y = H_index)) + 
       geom_boxplot() +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+      geom_jitter(shape=16, position=position_jitter(0.2)) +
+      #ylim(0, 15) + 
+      theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))
+    
+  }) 
+  
+  output$plotTime_to_degree_Box <- renderPlot({
+    
+    all_df_papers_sum() |>
+      
+      ggplot(aes(x = .data[[input$group]], y = time_to_degree)) + 
+      geom_hline(yintercept = 5, color = "red") +
+      geom_boxplot() +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
       geom_jitter(shape=16, position=position_jitter(0.2)) +
       #ylim(0, 15) + 
       theme(axis.title = element_text(size = 20), axis.text = element_text(size = 15))

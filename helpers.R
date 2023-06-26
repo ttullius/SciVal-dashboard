@@ -18,6 +18,46 @@ load_file <- function(path) {
 
 
 
+#######    function to collect the start and end years for a SciVal query.   ##############
+#######    produces the following dataframe:
+#######       lastUpdated    metricEndYear   metricStartYear    sourceName
+#######    1  2023-06-07          2024            2018           Scopus
+
+
+get_SciValDates <- function() {
+  
+  headers = c(
+    `Accept` = 'application/xml'
+  )
+  
+  params = list(
+    `metricTypes` = "ScholarlyOutput",
+    `authors` = '6701858763,20433296900',
+    `yearRange` = '5yrsAndCurrentAndFuture',
+    `includeSelfCitations` = 'true',
+    `byYear` = 'false',
+    `includedDocs` = 'AllPublicationTypes',
+    `journalImpactType` = 'CiteScore',
+    `showAsFieldWeighted` = 'false',
+    `indexType` = 'hIndex',
+    `apiKey` = '7f59af901d2d86f78a1fd60c1bf9426a'
+  )
+  
+  url_xml <- httr::GET(url = 'https://api.elsevier.com/analytics/scival/author/metrics', httr::add_headers(.headers=headers), query = params) 
+  raw_xml <- read_xml(url_xml)
+  my_xml = xmlParse(raw_xml)
+  
+  #######. returns a dataframe with the metricEndYear and metricStartYear for the metrics collected
+  
+  df_Year <- xmlToDataFrame(my_xml, homogeneous = NA,
+                            collectNames = FALSE, nodes = getNodeSet(my_xml, "//dataSource"))
+  
+}
+
+
+
+
+
 ####### function to collect a metric for each trainee, from SciVal
 
 
