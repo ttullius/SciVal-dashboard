@@ -37,6 +37,8 @@ thematic_shiny(font = "auto")
 
 data_locations <- vroom::vroom("trainee_locations.csv", delim = ",",  show_col_types = FALSE, .name_repair = "unique_quiet")
 
+zip_codes_database <- vroom::vroom("zip_codes_states.csv", delim = ",",  show_col_types = FALSE, .name_repair = "unique_quiet")
+
 
 ##################   UI    ###############################
 
@@ -240,6 +242,16 @@ server <- function(input, output) {
     
     load_file(input$file3$datapath)
   }) 
+  
+  
+  ######      produce reactive variable for plotting trainee job locations  ####
+  
+  job_locations <- reactive({
+    
+    inner_join(Trainees(), zip_codes_database, by = "zip_code")
+    
+  })
+  
   
   
   ######      produce reactive variables for Info Boxes in Dashboard.  ####
@@ -564,7 +576,7 @@ server <- function(input, output) {
       all_df_papers_sum() |>
         group_by(.data[[input$group]]) |> 
         summarise(number = n(), average_years_to_degree = mean(time_to_degree), average_number_of_papers = mean(total_papers), average_number_of_citations = mean(number_of_citations), average_FWCI = mean(FWCI), average_H_index = mean(H_index)) |>
-        mutate(across(c('average_FWCI', 'average_time_to_degree'), round, 1)) |>
+        mutate(across(c('average_FWCI', 'average_years_to_degree'), round, 1)) |>
         mutate(across(c('average_number_of_citations', 'average_H_index','average_number_of_papers' ), round, 0))
     
   })
@@ -850,8 +862,11 @@ server <- function(input, output) {
   # create the map  ----
   
   output$mymap <- renderLeaflet({
-    leaflet(data_locations) |> 
-      setView(lng = -99, lat = 45, zoom = 2)  %>% #setting the view over ~ center of North America
+    
+    #leaflet(data_locations) |>
+      
+      leaflet(job_locations()) |>
+      setView(lng = -99, lat = 45, zoom = 2)  |>      #setting the view over ~ center of North America
       addTiles() |> 
       #addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(job), label = ~as.character(paste0("Job: ", sep = " ", job)), color = ~pal2(job), fillOpacity = 0.5)
       #addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(paste0(company, sep = ", ",city)), label = ~as.character(job), color = ~pal2(job), fillOpacity = 0.5)
@@ -873,7 +888,7 @@ server <- function(input, output) {
     #last_corresp_author_years_out_summarised_df()
     #papers_mean()
     #papers_years_out_df()
-    metrics_df()
+   job_locations()
     
     
   })
@@ -898,7 +913,7 @@ server <- function(input, output) {
     
     df <- metrics_df() |> 
       select(-id, -first, -starts_with("2"), -zip_code, -additional_position) |>
-      mutate(across(c('FWCI'), round, 1)) |>
+      mutate(across(c('FWCI', 'time_to_degree'), round, 1)) |>
       rename("first" = first_name, "last" = author, "cohort" = enter_date, "citations" = number_of_citations, "H-index" = H_index, "number of papers" = number_of_papers)
    
  })
@@ -907,7 +922,7 @@ server <- function(input, output) {
   output$metricsTable <- DT::renderDataTable({
     
     metricsTable <- 
-      metrics_summarised() 
+      metrics_summarised()
    
   })
   
