@@ -6,6 +6,7 @@ require(XML)
 require(vroom)
 require(tools)
 require(stats)
+require(DescTools)
 
 
 ############ function to read in the csv file containing trainee names, Scopus ID's,and other metadata (start, finish, gender, URM, etc.)
@@ -33,14 +34,16 @@ get_SciValDates <- function() {
   params = list(
     `metricTypes` = "ScholarlyOutput",
     `authors` = '6701858763,20433296900',
-    `yearRange` = '5yrsAndCurrentAndFuture',
+    `yearRange` = '10yrs',
+    #`yearRange` = '5yrsAndCurrentAndFuture',
     `includeSelfCitations` = 'true',
     `byYear` = 'false',
     `includedDocs` = 'AllPublicationTypes',
     `journalImpactType` = 'CiteScore',
     `showAsFieldWeighted` = 'false',
     `indexType` = 'hIndex',
-    `apiKey` = '7f59af901d2d86f78a1fd60c1bf9426a'
+    `apiKey` = 'c56d6f878f0ce11354563cd7af25d855'           ### my API key
+    #`apiKey` = '7f59af901d2d86f78a1fd60c1bf9426a'
   )
   
   url_xml <- httr::GET(url = 'https://api.elsevier.com/analytics/scival/author/metrics', httr::add_headers(.headers=headers), query = params) 
@@ -78,7 +81,8 @@ get_SciValDates <- function() {
       `journalImpactType` = 'CiteScore',
       `showAsFieldWeighted` = 'false',
       `indexType` = 'hIndex',
-      `apiKey` = '7f59af901d2d86f78a1fd60c1bf9426a'
+      `apiKey` = 'c56d6f878f0ce11354563cd7af25d855'           ### my API key
+      #`apiKey` = '7f59af901d2d86f78a1fd60c1bf9426a'
     )
     
     url_xml <- httr::GET(url = 'https://api.elsevier.com/analytics/scival/author/metrics', httr::add_headers(.headers=headers), query = params) 
@@ -92,7 +96,6 @@ get_SciValDates <- function() {
     df_names <- xmlToDataFrame(my_xml, homogeneous = NA,
                                collectNames = FALSE, nodes = getNodeSet(my_xml, "//name"))
     
-    #df_SciValMetric <- bind_cols(df_names, df_id, df_metrics)
     df_SciValMetric <- bind_cols(df_names, df_id, df_metrics, .name_repair = c("unique_quiet"))
     colnames(df_SciValMetric) <- c("name", "id", "metric", metric_name)
     
@@ -120,7 +123,8 @@ get_SciValDates <- function() {
         `journalImpactType` = 'CiteScore',
         `showAsFieldWeighted` = 'false',
         `indexType` = 'hIndex',
-        `apiKey` = '7f59af901d2d86f78a1fd60c1bf9426a'
+        `apiKey` = 'c56d6f878f0ce11354563cd7af25d855'           ### my API key
+        #`apiKey` = '7f59af901d2d86f78a1fd60c1bf9426a'
       )
       
       url_xml <- httr::GET(url = 'https://api.elsevier.com/analytics/scival/author/metrics', httr::add_headers(.headers=headers), query = params) 
@@ -152,11 +156,19 @@ get_SciValDates <- function() {
       
       df_metric_list <- lapply(ID_list, getSciValMetric, SciValMetric = SciValMetric, metric_name = metric_name)
       
-      if(num_rows > 100) {
-        full_df_metric <- bind_rows(df_metric_list[[1]], df_metric_list[[2]]) %>% select(-metric, -name)
-      }  else  {
-        full_df_metric <- df_metric_list[[1]] %>% select(-metric, -name)
-      }
+      if(num_rows > 200) {
+        full_df_metric <- bind_rows(df_metric_list[[1]], df_metric_list[[2]], df_metric_list[[3]]) |> 
+          select(-metric, -name)
+        
+        } else if (num_rows %()% c(101, 200)) {
+          full_df_metric <- bind_rows(df_metric_list[[1]], df_metric_list[[2]]) |> 
+            select(-metric, -name)
+        
+        }  else  {
+          
+        full_df_metric <- df_metric_list[[1]] |> 
+          select(-metric, -name)
+        }
       
       full_df_metric$id <- as.double(full_df_metric$id)
       return(full_df_metric)
@@ -169,13 +181,16 @@ get_SciValDates <- function() {
       
       df_all_years_metric_list <- lapply(ID_list, getSciValMetricAllYears)
       
-      if(num_rows > 100) {
-        full_df_all_years_metric <- bind_rows(df_all_years_metric_list[[1]], df_all_years_metric_list[[2]])
-        #%>% select(-metric, -name)
-      }  else  {
+      if(num_rows > 200) {
+        full_df_all_years_metric <- bind_rows(df_all_years_metric_list[[1]], df_all_years_metric_list[[2]], df_all_years_metric_list[[3]])
+  
+        }  else if (num_rows %()% c(101, 200)) {  
+          full_df_all_years_metric <- bind_rows(df_all_years_metric_list[[1]], df_all_years_metric_list[[2]])
+        
+        }  else  {
         full_df_all_years_metric <- df_all_years_metric_list[[1]] 
-        #%>% select(-metric, -name)
-      }
+
+        }
       
       full_df_all_years_metric$id <- as.double(full_df_all_years_metric$id)
       return(full_df_all_years_metric)

@@ -22,6 +22,8 @@ library(leaflet)
 library(leaflet.extras)
 library(shinythemes)
 library(thematic)
+library(viridis)
+library(DescTools)
 
 
 ############      SOURCE HELPER FUNCTIONS   #######################
@@ -215,7 +217,7 @@ server <- function(input, output) {
 
   #########  Use the load_file helper function (from helpers.R file) to load user-supplied files. ##################
   
-  #########  One file contains trainee metadata (Scopus ID, gender, enter date, finish date, job type. etc.).   ##########
+  #########  One file contains trainee metadata (Scopus ID, gender, enter date, finish date, job type., etc.).   ##########
   
   #########  Additional files can be loaded that contain first-author paper data, and last/corresponding author paper data.   ########## 
   
@@ -482,7 +484,14 @@ server <- function(input, output) {
   
   trainee_list <- reactive ({
     
-    if(num_rows() > 100) {
+    if (num_rows() > 200) {
+      
+      Trainees1 <- Trainees()[1:100, ]
+      Trainees2 <- Trainees()[101:200, ]
+      Trainees3 <- Trainees()[201:num_rows(), ]
+      trainee_list <- list(Trainees1, Trainees2, Trainees3)
+      
+    }  else if (num_rows() %()% c(101, 200)) {
       
       Trainees1 <- Trainees()[1:100, ]
       Trainees2 <- Trainees()[101:num_rows(), ]
@@ -854,8 +863,10 @@ server <- function(input, output) {
   
   # Define the color for  graduates' jobs  ----
   
+ 
   pal2 <- colorFactor(
-    palette = c('blue', 'yellow', 'red', 'green'),
+    palette = c('blue', 'yellow', 'orange', 'green', 'red', 'pink','violet'),
+    #palette = topo.colors(6),
     domain = data_locations$job
   )
   
@@ -870,7 +881,10 @@ server <- function(input, output) {
       addTiles() |> 
       #addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(job), label = ~as.character(paste0("Job: ", sep = " ", job)), color = ~pal2(job), fillOpacity = 0.5)
       #addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(paste0(company, sep = ", ",city)), label = ~as.character(job), color = ~pal2(job), fillOpacity = 0.5)
-      addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(paste0(city)), label = ~as.character(job), color = ~pal2(job), fillOpacity = 0.5)
+      addCircles(data = job_locations(), lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(paste(first_name, author, ',', employer, ',', city)), label = ~as.character(job), color = ~pal2(job), fillOpacity = 1.0) |>
+      addLegend("topright", pal = pal2, values = ~job,
+                title = "Trainee Job",
+                opacity = 1)
   })
   
   
@@ -888,7 +902,8 @@ server <- function(input, output) {
     #last_corresp_author_years_out_summarised_df()
     #papers_mean()
     #papers_years_out_df()
-   job_locations()
+   #job_locations()
+    last_corresp_author_total()
     
     
   })
@@ -903,7 +918,7 @@ server <- function(input, output) {
     #first_author_total()
     #first_author_papers_mean()
     #first_author_years_out_df()
-    all_df_papers_sum()
+    last_corresp_author_summarised()
     
     
   })
