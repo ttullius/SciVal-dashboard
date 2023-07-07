@@ -553,11 +553,12 @@ server <- function(input, output) {
     
     factor_list <- c('id', 'enter_date', 'finish', 'gender', 'fellowship', 'job')
     metrics_df <- metrics_df |> 
-      mutate(across(factor_list, ~as.factor(.)))
+      mutate(across(all_of(factor_list), ~as.factor(.)))
+      #mutate(across(factor_list, ~as.factor(.)))
     
     double_list <- c('number_of_papers', 'number_of_citations', 'FWCI', 'H_index')
     metrics_df <- metrics_df |> 
-      mutate(across(double_list, ~as.double(.)))
+      mutate(across(all_of(double_list), ~as.double(.)))
     
     metrics_df <- metrics_df |>
     mutate(time_to_degree = months/12)
@@ -585,8 +586,8 @@ server <- function(input, output) {
       all_df_papers_sum() |>
         group_by(.data[[input$group]]) |> 
         summarise(number = n(), average_years_to_degree = mean(time_to_degree), average_number_of_papers = mean(total_papers), average_number_of_citations = mean(number_of_citations), average_FWCI = mean(FWCI), average_H_index = mean(H_index)) |>
-        mutate(across(c('average_FWCI', 'average_years_to_degree'), round, 1)) |>
-        mutate(across(c('average_number_of_citations', 'average_H_index','average_number_of_papers' ), round, 0))
+        mutate(across(c('average_FWCI', 'average_years_to_degree'), ~round(.x, 1))) |>
+        mutate(across(c('average_number_of_citations', 'average_H_index','average_number_of_papers' ), ~round(.x, 0)))
     
   })
   
@@ -606,7 +607,7 @@ server <- function(input, output) {
      metric_list <- c('id', 'gender', 'fellowship', 'job')
      
      papers_all_years_df <- papers_all_years_df |> 
-       mutate(across(metric_list, ~as.factor(.))) |>
+       mutate(across(all_of(metric_list), ~as.factor(.))) |>
        mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
      
    })   
@@ -662,7 +663,7 @@ server <- function(input, output) {
     full_metric_list <- c('id', 'gender', 'fellowship', 'job')
   
     papers_years_out_df <- papers_years_out_df |> 
-      mutate(across(full_metric_list, ~as.factor(.))) |>
+      mutate(across(all_of(full_metric_list), ~as.factor(.))) |>
       mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
   
   })
@@ -706,7 +707,7 @@ server <- function(input, output) {
     FirstAuthor() |> 
       rowwise() |> 
       mutate(total_first_author = sum(c_across(starts_with("2")), na.rm = T)) |>
-      mutate(across(factor_list_fa, ~as.factor(.))) |>
+      mutate(across(all_of(factor_list_fa), ~as.factor(.))) |>
       #mutate(all_of(double_list_fa, ~as.double(.)))
       mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
     
@@ -743,7 +744,7 @@ server <- function(input, output) {
     full_metric_list_first_author <- c('id', 'gender', 'fellowship', 'job')
     
     first_author_years_out_df <- first_author_years_out_df |> 
-      mutate(across(full_metric_list_first_author, ~as.factor(.))) |>
+      mutate(across(all_of(full_metric_list_first_author), ~as.factor(.))) |>
       mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
     
   })
@@ -788,8 +789,8 @@ server <- function(input, output) {
     LastCorrespAuthor() |> 
       rowwise() |> 
       mutate(total_last_corresp_author = sum(c_across(starts_with("2")), na.rm = T)) |> 
-      mutate(across(factor_list_fa, ~as.factor(.))) |>
-      mutate(across(double_list, ~as.double(.))) |>
+      mutate(across(all_of(factor_list_fa), ~as.factor(.))) |>
+      mutate(across(all_of(double_list), ~as.double(.))) |>
       mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
     
   }) 
@@ -824,7 +825,7 @@ server <- function(input, output) {
     full_metric_list_last_corresp_author <- c('id', 'gender', 'fellowship', 'job')
     
     last_corresp_author_years_out_df <- last_corresp_author_years_out_df |> 
-      mutate(across(full_metric_list_last_corresp_author, ~as.factor(.))) |>
+      mutate(across(all_of(full_metric_list_last_corresp_author), ~as.factor(.))) |>
       mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
     
   })
@@ -928,7 +929,7 @@ server <- function(input, output) {
     
     df <- metrics_df() |> 
       select(-id, -first, -starts_with("2"), -zip_code, -additional_position) |>
-      mutate(across(c('FWCI', 'time_to_degree'), round, 1)) |>
+      mutate(across(c('FWCI', 'time_to_degree'), ~round(.x, 1))) |>
       rename("first" = first_name, "last" = author, "cohort" = enter_date, "citations" = number_of_citations, "H-index" = H_index, "number of papers" = number_of_papers)
    
  })
