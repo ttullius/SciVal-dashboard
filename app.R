@@ -140,9 +140,9 @@ ui <- dashboardPage(
         
         tabPanel("jobs",h2("What are our PhD graduates doing now?"),plotOutput("plotJobsPie")),
         
-        tabPanel("test", DT::dataTableOutput("testTable")),
+        #tabPanel("test", DT::dataTableOutput("testTable")),
         
-        tabPanel("test2", DT::dataTableOutput("testTable2")),
+        #tabPanel("test2", DT::dataTableOutput("testTable2")),
         
         tabPanel("trainees", DT::dataTableOutput("traineesMetricsTable")),
        
@@ -616,8 +616,8 @@ server <- function(input, output) {
   allPapers <- reactive ({
     
     papers_all_years_df() |> 
-      summarise(number = n(), '2000' = sum(`2000`), '2001' = sum(`2001`), '2002' = sum(`2002`), '2003' = sum(`2003`), '2004' = sum(`2004`), '2005' = sum(`2005`), '2006' = sum(`2006`), '2007' = sum(`2007`), '2008' = sum(`2008`), '2009' = sum(`2009`), '2010' = sum(`2010`), '2011' = sum(`2011`),
-                '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`), '2022' = sum(`2022`))
+       summarise(number = n(), across(starts_with("2"), sum))
+    
   })   
   
   
@@ -634,9 +634,9 @@ server <- function(input, output) {
      
      papers_all_years_df() |> 
        group_by(.data[[input$group]]) |> 
-       summarise(number = n(), '2000' = sum(`2000`), '2001' = sum(`2001`), '2002' = sum(`2002`), '2003' = sum(`2003`), '2004' = sum(`2004`), '2005' = sum(`2005`), '2006' = sum(`2006`), '2007' = sum(`2007`), '2008' = sum(`2008`), '2009' = sum(`2009`), '2010' = sum(`2010`), '2011' = sum(`2011`),
-       '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`), '2022' = sum(`2022`))
-   })   
+          summarise(number = n(), across(starts_with("2"), sum))
+     
+     })   
    
   tidy_allPapers_summarised <-  reactive ({  
     
@@ -720,9 +720,9 @@ server <- function(input, output) {
     
     first_author_total() |> 
       group_by(.data[[input$group]]) |> 
-      summarise(number = n(), '2000' = sum(`2000`), '2001' = sum(`2001`), '2002' = sum(`2002`), '2003' = sum(`2003`), '2004' = sum(`2004`), '2005' = sum(`2005`), '2006' = sum(`2006`), '2007' = sum(`2007`), '2008' = sum(`2008`), '2009' = sum(`2009`), '2010' = sum(`2010`), '2011' = sum(`2011`),
-                '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`), '2022' = sum(`2022`), '2023' = sum(`2023`))
-  })   
+         summarise(number = n(), across(starts_with("2"), sum))
+    
+    })   
   
   
   
@@ -802,9 +802,9 @@ server <- function(input, output) {
     
     last_corresp_author_total() |> 
       group_by(.data[[input$group]]) |> 
-      summarise(number = n(), '2000' = sum(`2000`), '2001' = sum(`2001`), '2002' = sum(`2002`), '2003' = sum(`2003`), '2004' = sum(`2004`), '2005' = sum(`2005`), '2006' = sum(`2006`), '2007' = sum(`2007`), '2008' = sum(`2008`), '2009' = sum(`2009`), '2010' = sum(`2010`), '2011' = sum(`2011`),
-                '2012' = sum(`2012`), '2013' = sum(`2013`),'2014' = sum(`2014`),'2015' = sum(`2015`),'2016' = sum(`2016`),'2017' = sum(`2017`), '2018' = sum(`2018`), '2019' = sum(`2019`), '2020' = sum(`2020`), '2021' = sum(`2021`), '2022' = sum(`2022`), '2023' = sum(`2023`))
-  })   
+         summarise(number = n(), across(starts_with("2"), sum))
+    
+    })   
   
   
   #################  transform "last/corresponding authors" dataset (last_corresp_author_total) into numbers of last/corresponding-author papers published each year relative to year of finishing PhD (years out)
@@ -894,7 +894,6 @@ server <- function(input, output) {
   output$testTable <- DT::renderDataTable({
     
     #papers_all_years_df()
-   
     #first_author_years_out_df()
     #first_author_total()
     #first_author_summarised()
@@ -904,7 +903,9 @@ server <- function(input, output) {
     #papers_mean()
     #papers_years_out_df()
    #job_locations()
-    last_corresp_author_total()
+    #last_corresp_author_total()
+    #tidy_allPapers()
+    #allPapers()
     
     
   })
@@ -919,7 +920,7 @@ server <- function(input, output) {
     #first_author_total()
     #first_author_papers_mean()
     #first_author_years_out_df()
-    last_corresp_author_summarised()
+    #last_corresp_author_summarised()
     
     
   })
@@ -1051,7 +1052,7 @@ server <- function(input, output) {
     
     ggplot() +
       
-      geom_line(data = tidy_allPapers(), aes(x = year, y = papers, group = 1), size = 1.2) +
+      geom_line(data = tidy_allPapers(), aes(x = year, y = papers, group = 1), linewidth = 1.2) +
       
       geom_line(data = tidy_allPapers_summarised(), aes(x = year, y = papers,
                                                     group = .data[[input$group]], color = .data[[input$group]]), size = 1.2) +
