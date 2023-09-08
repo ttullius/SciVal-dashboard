@@ -42,8 +42,9 @@ get_SciValDates <- function() {
     `journalImpactType` = 'CiteScore',
     `showAsFieldWeighted` = 'false',
     `indexType` = 'hIndex',
-    `apiKey` = 'c56d6f878f0ce11354563cd7af25d855'           ### my API key
-    #`apiKey` = '7f59af901d2d86f78a1fd60c1bf9426a'
+    `apiKey` = APIkey,           ### my API key
+    `insttoken` = instToken           ### institutional token
+    
   )
   
   url_xml <- httr::GET(url = 'https://api.elsevier.com/analytics/scival/author/metrics', httr::add_headers(.headers=headers), query = params) 
@@ -66,7 +67,7 @@ get_SciValDates <- function() {
 
 ### use https://curlconverter.com/r/ to generate a SciVal XML call using the curl command from SciVal (e.g. https://dev.elsevier.com/scival.html#!/SciVal_Author_Lookup_API/authorMetrics)
 
-    getSciValMetric <- function(author_ID_list, SciValMetric, metric_name)    {
+    getSciValMetric <- function(author_ID_list, SciValMetric, metric_name, APIkey, instToken)    {
     headers = c(
       `Accept` = 'application/xml'
     )
@@ -81,8 +82,9 @@ get_SciValDates <- function() {
       `journalImpactType` = 'CiteScore',
       `showAsFieldWeighted` = 'false',
       `indexType` = 'hIndex',
-      `apiKey` = 'c56d6f878f0ce11354563cd7af25d855'           ### my API key
-      #`apiKey` = '7f59af901d2d86f78a1fd60c1bf9426a'
+      `apiKey` = APIkey,  
+      `insttoken` = instToken           ### institutional token
+      
     )
     
     url_xml <- httr::GET(url = 'https://api.elsevier.com/analytics/scival/author/metrics', httr::add_headers(.headers=headers), query = params) 
@@ -107,7 +109,7 @@ get_SciValDates <- function() {
     
 ##########  function to query SciVal for a metric, by Year   #############
     
-    getSciValMetricAllYears <- function(author_ID_list)    {
+    getSciValMetricAllYears <- function(author_ID_list, APIkey, instToken)    {
       
       headers = c(
         `Accept` = 'application/xml'
@@ -123,8 +125,8 @@ get_SciValDates <- function() {
         `journalImpactType` = 'CiteScore',
         `showAsFieldWeighted` = 'false',
         `indexType` = 'hIndex',
-        `apiKey` = 'c56d6f878f0ce11354563cd7af25d855'           ### my API key
-        #`apiKey` = '7f59af901d2d86f78a1fd60c1bf9426a'
+        `apiKey` = APIkey,  
+        `insttoken` = instToken           ### institutional token
       )
       
       url_xml <- httr::GET(url = 'https://api.elsevier.com/analytics/scival/author/metrics', httr::add_headers(.headers=headers), query = params) 
@@ -152,15 +154,16 @@ get_SciValDates <- function() {
     
     #######################   function to produce a dataframe for each SciVal metric    ###########################
     
-    makeSciValMetricDF <- function(ID_list, num_rows, SciValMetric, metric_name)    {
+    makeSciValMetricDF <- function(ID_list, num_rows, APIkey, instToken, SciValMetric, metric_name)    {
       
-      df_metric_list <- lapply(ID_list, getSciValMetric, SciValMetric = SciValMetric, metric_name = metric_name)
+      df_metric_list <- lapply(ID_list, getSciValMetric, APIkey = APIkey, instToken = instToken, SciValMetric = SciValMetric, metric_name = metric_name)
       
       if(num_rows > 200) {
         full_df_metric <- bind_rows(df_metric_list[[1]], df_metric_list[[2]], df_metric_list[[3]]) |> 
           select(-metric, -name)
         
         } else if (num_rows %()% c(101, 200)) {
+      #}  else if (between (num_rows, 101, 200)) {
           full_df_metric <- bind_rows(df_metric_list[[1]], df_metric_list[[2]]) |> 
             select(-metric, -name)
         
@@ -177,14 +180,15 @@ get_SciValDates <- function() {
     
     #######################   function to produce a dataframe containing number of papers for each year    ###########################
     
-    makeSciValPapersAllYearsDF <- function(ID_list, num_rows)    {
+    makeSciValPapersAllYearsDF <- function(ID_list, num_rows, APIkey, instToken)    {
       
-      df_all_years_metric_list <- lapply(ID_list, getSciValMetricAllYears)
+      df_all_years_metric_list <- lapply(ID_list, getSciValMetricAllYears, APIkey = APIkey, instToken = instToken)
       
       if(num_rows > 200) {
         full_df_all_years_metric <- bind_rows(df_all_years_metric_list[[1]], df_all_years_metric_list[[2]], df_all_years_metric_list[[3]])
   
-        }  else if (num_rows %()% c(101, 200)) {  
+        }  else if (num_rows %()% c(101, 200)) {
+      #}  else if (between (num_rows, 101, 200)) {
           full_df_all_years_metric <- bind_rows(df_all_years_metric_list[[1]], df_all_years_metric_list[[2]])
         
         }  else  {

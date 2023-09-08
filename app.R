@@ -49,7 +49,15 @@ ui <- dashboardPage(
   
   dashboardSidebar(
   
-      fileInput("file1",
+    textInput("APIkey",
+              label = h3("Enter the SciVal API key:")
+    ),  
+    
+    textInput("instToken",
+              label = h3("Enter the SciVal token:")
+    ),  
+    
+    fileInput("file1",
                 label = h3("Choose CSV File with trainee metadata:"),
                 accept = ".csv"
       ),
@@ -78,7 +86,12 @@ ui <- dashboardPage(
       tags$hr(),
       
       checkboxGroupInput("checkGroup", label = h3("Choose jobs to compare for 'years out' plots:"), 
-                         choices = list("Academia" = "Academia", "Academia (non-faculty)" = "Academia (non-faculty)", "Industry" = "Industry", "Research Institute" = "Research Institute", "Government Lab" = "Government Lab", "Entrepreneur" = "Entrepreneur"), 
+                         choices = list("Academia" = "Academia", 
+                                        "Academia (non-faculty)" = "Academia (non-faculty)", 
+                                        "Industry" = "Industry", 
+                                        "Research Institute" = "Research Institute", 
+                                        "Government Lab" = "Government Lab", 
+                                        "Entrepreneur" = "Entrepreneur"), 
                          selected = "Academia"
        ),
       
@@ -267,8 +280,7 @@ server <- function(input, output) {
   
   
    time_to_degree_mean <- reactive({
-    time_to_degree_mean <- 
-      metrics_df() |> 
+    time_to_degree_mean <- metrics_df() |> 
       summarise(mean_months = mean(months)/12) |>
       mutate_if(is.numeric, round, digits = 1)
   })
@@ -375,7 +387,7 @@ server <- function(input, output) {
   
   output$program_h_index <- renderInfoBox({
     infoBox(
-      "BU Bioinformatics Program H-index", paste0(344), 
+      "BU Bioinformatics Program H-index", paste0(358), 
       icon = icon("users"),
       color = "red"
     )
@@ -478,9 +490,27 @@ server <- function(input, output) {
                      })
   
   
+  APIkey <- reactive ({
+    
+    req(input$APIkey)
+    APIkey <- input$APIkey
+    
+  })
+  
+  instToken <- reactive ({
+    
+    req(input$instToken)
+    instToken <- input$instToken
+    
+  })
+  
+  
   ##############  SciVal throws an error if the number of Scopus ID's in the request is >100   ###       
-  ##############  Check how many trainees are listed in the trainee metadata file (nrow = number of rows in the dataframe). If >100, subset into two lists of trainees.  #########
-  ##############  If number of trainees is <101, make a single list of trainees for input into code for making Scopus ID list   ####### 
+  ##############  Check how many trainees are listed in the trainee metadata file (nrow = number of rows in the dataframe). 
+  ##############  If >200, subset into three groups of trainees.  #########
+  ##############  If >101 and <200, subset into two groups of trainees.  #########
+  ##############  If <101, make a single group of trainees
+  ##############  Combine the trainee group(s) into a list, trainee_list(), which is the input to code for making Scopus ID list   ####### 
   
   trainee_list <- reactive ({
     
@@ -491,7 +521,8 @@ server <- function(input, output) {
       Trainees3 <- Trainees()[201:num_rows(), ]
       trainee_list <- list(Trainees1, Trainees2, Trainees3)
       
-    }  else if (num_rows() %()% c(101, 200)) {
+    #}  else if (num_rows() %()% c(101, 200)) {
+    }  else if (between (num_rows(), 101, 200)) {
       
       Trainees1 <- Trainees()[1:100, ]
       Trainees2 <- Trainees()[101:num_rows(), ]
@@ -505,7 +536,7 @@ server <- function(input, output) {
   })
   
   ###  from the trainee metadata file, construct a list of Scopus ID's for submitting SciVal API calls   #######
-  ###  uses get_ID_list function in helpers.R.    
+  ###  uses get_ID_list function in helpers.R    
   
   ID_list <- reactive ({
     
@@ -517,28 +548,33 @@ server <- function(input, output) {
   
   metrics_df <- reactive ({
     
-##############  produce dataframes for each SciVal metric of interest. Here are four example metrics - more can easily be added! 
+##############  produce dataframes for each SciVal metric of interest. 
+##############  Here are four example metrics - more can easily be added! 
 ##############  uses functions in helpers.R
     
     
     SciValMetric <-  "ScholarlyOutput"
     metric_name <- "number_of_papers"
-    full_df_scholarly_output <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "ScholarlyOutput", metric_name = "number_of_papers")
+    #full_df_scholarly_output <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "ScholarlyOutput", metric_name = "number_of_papers")
+    full_df_scholarly_output <- makeSciValMetricDF(ID_list(), num_rows(), APIkey = APIkey(), instToken = instToken(), SciValMetric = "ScholarlyOutput", metric_name = "number_of_papers")
     
     
     SciValMetric <-  "FieldWeightedCitationImpact"
     metric_name <- "FWCI"
-    full_df_fwci <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "FieldWeightedCitationImpact", metric_name = "FWCI")
+    #full_df_fwci <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "FieldWeightedCitationImpact", metric_name = "FWCI")
+    full_df_fwci <- makeSciValMetricDF(ID_list(), num_rows(), APIkey = APIkey(), instToken = instToken(), SciValMetric = "FieldWeightedCitationImpact", metric_name = "FWCI")
     
     
     SciValMetric <-  "CitationCount"
     metric_name <- "number_of_citations"
-    full_df_citation_count <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "CitationCount", metric_name = "number_of_citations")
+    #full_df_citation_count <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "CitationCount", metric_name = "number_of_citations")
+    full_df_citation_count <- makeSciValMetricDF(ID_list(), num_rows(), APIkey = APIkey(), instToken = instToken(), SciValMetric = "CitationCount", metric_name = "number_of_citations")
     
     
     SciValMetric <-  "HIndices"
     metric_name <- "H_index"
-    full_df_h_index <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "HIndices", metric_name = "H_index")
+    #full_df_h_index <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "HIndices", metric_name = "H_index")
+    full_df_h_index <- makeSciValMetricDF(ID_list(), num_rows(), APIkey = APIkey(), instToken = instToken(), SciValMetric = "HIndices", metric_name = "H_index")
     
    
 #######  combine the metrics dataframes, merge with the trainee metadata dataframe that was read in as a CSV, and clean up variable types  ############### 
@@ -554,7 +590,6 @@ server <- function(input, output) {
     factor_list <- c('id', 'enter_date', 'finish', 'gender', 'fellowship', 'job')
     metrics_df <- metrics_df |> 
       mutate(across(all_of(factor_list), ~as.factor(.)))
-      #mutate(across(factor_list, ~as.factor(.)))
     
     double_list <- c('number_of_papers', 'number_of_citations', 'FWCI', 'H_index')
     metrics_df <- metrics_df |> 
@@ -569,7 +604,7 @@ server <- function(input, output) {
     
   }) 
   
-  ####  sum all papers from year 2000 on, and make a new variable total_papers  ################
+  ####  sum all papers from over the years that were obtained from SciVal, and make a new variable total_papers  ################
   
   all_df_papers_sum <- reactive ({
     
@@ -598,7 +633,7 @@ server <- function(input, output) {
   
    papers_all_years_df <- reactive ({
      
-     papers_all_years_df <- makeSciValPapersAllYearsDF(ID_list(), num_rows())
+     papers_all_years_df <- makeSciValPapersAllYearsDF(ID_list(), num_rows(), APIkey(), instToken())
      
      papers_all_years_df <- Trainees() |> 
        inner_join(papers_all_years_df, by="id") |> 
@@ -645,7 +680,7 @@ server <- function(input, output) {
     
   })
   
-  #################  transform "papers by year" dataset (papers_all_years_df()) into numbers of papers published each year relative to year of finishing PhD (years out)
+  #################  transform "papers by year" dataset, papers_all_years_df(), into numbers of papers published each year relative to year of finishing PhD (years out)
   
   papers_years_out_df <- reactive ({
     
@@ -697,7 +732,7 @@ server <- function(input, output) {
   ################  first author code ################
 
   
-  ####  sum all first author papers from 2000 - 2023, and make a new variable total_first_author  ################
+  ####  sum all first author papers over the range of years obtained from SciVal and make a new variable total_first_author  ################
   
   factor_list_fa <- c('id', 'gender', 'fellowship', 'job')
   double_list_fa <- c('total_first_author', 'enter_date', 'finish')
@@ -726,7 +761,7 @@ server <- function(input, output) {
   
   
   
-  #################  transform "first authors" dataset (first_author_total) into numbers of first-author papers published each year relative to year of finishing PhD (years out)
+  #################  transform "first authors" dataset, first_author_total(), into numbers of first-author papers published each year relative to year of finishing PhD (years out)
   
   first_author_years_out_df <- reactive ({
     
@@ -738,7 +773,6 @@ server <- function(input, output) {
         values_drop_na = TRUE)
     
     first_author_years_out_df <- transform(first_author_years_out_df, year = as.numeric(year))
-    
     first_author_years_out_df <- mutate(first_author_years_out_df, years_out = year - finish)
     
     full_metric_list_first_author <- c('id', 'gender', 'fellowship', 'job')
@@ -750,7 +784,7 @@ server <- function(input, output) {
   })
   
   
-  ############### first author papers for all trainees. ################
+  ############### first author papers for all trainees ################
   
   first_author_years_out_all_trainees <- reactive ({
     
@@ -779,7 +813,7 @@ server <- function(input, output) {
   ################  last/corresponding author code    ################
   
   
-  ####  sum all last/corresponding author papers from 2000 - 2023, and make a new variable total_last_corresp_author  ################
+  ####  sum all last/corresponding author papers over the range of years obtained from SciVal and make a new variable total_last_corresp_author  ################
   
   factor_list_fa <- c('id', 'gender', 'fellowship', 'job')
   double_list <- c('total_last_corresp_author', 'enter_date', 'finish')
@@ -807,7 +841,7 @@ server <- function(input, output) {
     })   
   
   
-  #################  transform "last/corresponding authors" dataset (last_corresp_author_total) into numbers of last/corresponding-author papers published each year relative to year of finishing PhD (years out)
+  #################  transform "last/corresponding authors" dataset, last_corresp_author_total(), into numbers of last/corresponding-author papers published each year relative to year of finishing PhD (years out)
   
   last_corresp_author_years_out_df <- reactive ({
     
@@ -867,7 +901,6 @@ server <- function(input, output) {
  
   pal2 <- colorFactor(
     palette = c('blue', 'yellow', 'orange', 'green', 'red', 'pink','violet'),
-    #palette = topo.colors(6),
     domain = data_locations$job
   )
   
@@ -877,7 +910,7 @@ server <- function(input, output) {
     
     #leaflet(data_locations) |>
       
-      leaflet(job_locations()) |>
+  leaflet(job_locations()) |>
       setView(lng = -99, lat = 45, zoom = 2)  |>      #setting the view over ~ center of North America
       addTiles() |> 
       #addCircles(data = data_locations, lat = ~ latitude, lng = ~ longitude, weight = 5, radius = 2000, popup = ~as.character(job), label = ~as.character(paste0("Job: ", sep = " ", job)), color = ~pal2(job), fillOpacity = 0.5)
@@ -930,6 +963,7 @@ server <- function(input, output) {
     
     df <- metrics_df() |> 
       select(-id, -first, -starts_with("2"), -zip_code, -additional_position) |>
+      #select(-id, -starts_with("2"), -zip_code, -additional_position) |>
       mutate(across(c('FWCI', 'time_to_degree'), ~round(.x, 1))) |>
       rename("first" = first_name, "last" = author, "cohort" = enter_date, "citations" = number_of_citations, "H-index" = H_index, "number of papers" = number_of_papers)
    
@@ -941,17 +975,6 @@ server <- function(input, output) {
     metricsTable <- 
       metrics_summarised()
    
-  })
-  
-  
-  #####################.   NOT USED.    #####################
-  
-  output$researcherTable <- DT::renderDataTable({
-    
-    researcherTable <- Trainees() |>
-      rename("last" = author, "SciVal ID" = id, "cohort" = enter_date) |> 
-      select(-starts_with("20"), -ends_with("1"), -"zip_code")
-    
   })
   
   
@@ -1056,8 +1079,6 @@ server <- function(input, output) {
       
       geom_line(data = tidy_allPapers_summarised(), aes(x = year, y = papers,
                                                     group = .data[[input$group]], color = .data[[input$group]]), size = 1.2) +
-    
-      
       theme_minimal() +
       
       theme(panel.border = element_blank(), 
