@@ -9,6 +9,7 @@ library(shinydashboard)
 #library(gridlayout)
 library(tidyverse)
 library(DT)
+#library(data.table)
 library(dplyr)
 require(httr)
 library(xml2)
@@ -95,7 +96,9 @@ ui <- dashboardPage(
                          selected = "Academia"
        ),
       
-      tags$hr()
+      tags$hr(),
+    
+    downloadButton("downloadData", "Download years out csv file")
 
     ),
     
@@ -149,9 +152,26 @@ ui <- dashboardPage(
         
       tabsetPanel(
         
-        tabPanel("map",h2("Where are our PhD graduates?"),leafletOutput(outputId = "mymap")),
+        tabPanel("map",
+                 h2("Where are our PhD graduates?", align = "center"),
+                 leafletOutput(outputId = "mymap")),
         
-        tabPanel("jobs",h2("What are our PhD graduates doing now?"),plotOutput("plotJobsPie")),
+        tabPanel("jobs",
+                 
+                 fluidRow(
+                   splitLayout(cellWidths = c("40%", "60%"), 
+                               h2("Where are they working?", align = "center"),
+                               h2("Which job sectors did each graduating class choose?", align = "center"),
+                               )
+                 ),
+                 
+                 fluidRow(
+                   splitLayout(cellWidths = c("40%", "60%"), 
+                               plotOutput("plotJobsPie"),
+                               plotOutput("plotJobsDist")
+                   )
+                 )
+                 ),
         
         #tabPanel("test", DT::dataTableOutput("testTable")),
         
@@ -164,7 +184,7 @@ ui <- dashboardPage(
         tabPanel("metrics plots", 
                 
                 tags$hr(),
-                 plotOutput("plotPapersBox"), 
+                 #plotOutput("plotPapersBox"), 
                  
                 tags$hr(),
                  plotOutput("plotFWCIBox"), 
@@ -521,7 +541,6 @@ server <- function(input, output) {
       Trainees3 <- Trainees()[201:num_rows(), ]
       trainee_list <- list(Trainees1, Trainees2, Trainees3)
       
-    #}  else if (num_rows() %()% c(101, 200)) {
     }  else if (between (num_rows(), 101, 200)) {
       
       Trainees1 <- Trainees()[1:100, ]
@@ -555,25 +574,21 @@ server <- function(input, output) {
     
     SciValMetric <-  "ScholarlyOutput"
     metric_name <- "number_of_papers"
-    #full_df_scholarly_output <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "ScholarlyOutput", metric_name = "number_of_papers")
     full_df_scholarly_output <- makeSciValMetricDF(ID_list(), num_rows(), APIkey = APIkey(), instToken = instToken(), SciValMetric = "ScholarlyOutput", metric_name = "number_of_papers")
     
     
     SciValMetric <-  "FieldWeightedCitationImpact"
     metric_name <- "FWCI"
-    #full_df_fwci <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "FieldWeightedCitationImpact", metric_name = "FWCI")
     full_df_fwci <- makeSciValMetricDF(ID_list(), num_rows(), APIkey = APIkey(), instToken = instToken(), SciValMetric = "FieldWeightedCitationImpact", metric_name = "FWCI")
     
     
     SciValMetric <-  "CitationCount"
     metric_name <- "number_of_citations"
-    #full_df_citation_count <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "CitationCount", metric_name = "number_of_citations")
     full_df_citation_count <- makeSciValMetricDF(ID_list(), num_rows(), APIkey = APIkey(), instToken = instToken(), SciValMetric = "CitationCount", metric_name = "number_of_citations")
     
     
     SciValMetric <-  "HIndices"
     metric_name <- "H_index"
-    #full_df_h_index <- makeSciValMetricDF(ID_list(), num_rows(), SciValMetric = "HIndices", metric_name = "H_index")
     full_df_h_index <- makeSciValMetricDF(ID_list(), num_rows(), APIkey = APIkey(), instToken = instToken(), SciValMetric = "HIndices", metric_name = "H_index")
     
    
@@ -904,11 +919,9 @@ server <- function(input, output) {
     domain = data_locations$job
   )
   
-  # create the map  ----
+  #################   create the map  ####################
   
   output$mymap <- renderLeaflet({
-    
-    #leaflet(data_locations) |>
       
   leaflet(job_locations()) |>
       setView(lng = -99, lat = 45, zoom = 2)  |>      #setting the view over ~ center of North America
@@ -921,12 +934,13 @@ server <- function(input, output) {
                 opacity = 1)
   })
   
+ 
   
    ###############   produce tables  ####################
    
   output$testTable <- DT::renderDataTable({
     
-    #papers_all_years_df()
+    papers_all_years_df()
     #first_author_years_out_df()
     #first_author_total()
     #first_author_summarised()
@@ -946,6 +960,7 @@ server <- function(input, output) {
   output$testTable2 <- DT::renderDataTable({
     
     
+    papers_years_out_df()
     #papers_years_out_summarised_df()
     #papers_all_years_df()
     #allPapers()
@@ -958,7 +973,15 @@ server <- function(input, output) {
     
   })
   
- 
+  ###########      export a csv file containing years out data  #########
+  
+  output$downloadData <- downloadHandler(
+    filename = "years_out_data.csv",
+    content = function(file) {
+      vroom::vroom_write(papers_years_out_df(), file, delim = ",")
+    }
+  )
+  
   output$traineesMetricsTable <- DT::renderDataTable({
     
     df <- metrics_df() |> 
@@ -977,10 +1000,22 @@ server <- function(input, output) {
    
   })
   
+  #################   plot job distribution by PhD year  ####################
   
+  output$plotJobsDist <- renderPlot({
+    
+  finish_trainee_df <- Trainees() |> 
+    group_by(job, finish)|> 
+    summarise (n=n())
   
-  #############    make box plots of metric data     ##################
+  ggplot(finish_trainee_df, aes(x=finish, y=n, fill=job)) +
+    geom_col() +
+    xlab("year of PhD") +
+    ylab("job count")
   
+  })
+ 
+  #############    make pie chart of graduates' jobs     ##################
   
   output$plotJobsPie <- renderPlot({
     
@@ -997,7 +1032,9 @@ server <- function(input, output) {
       theme_void()
     
   })
-  
+ 
+   
+  #############    make box plots of metric data     ##################
   
   output$plotPapersBox <- renderPlot({
     
