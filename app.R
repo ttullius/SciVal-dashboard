@@ -94,13 +94,14 @@ ui <- dashboardPage(
                                         "Government Lab" = "Government Lab", 
                                         "Entrepreneur" = "Entrepreneur"), 
                          selected = "Academia"
-       ),
-      
-      tags$hr(),
+       )
+    #,
+   
+     #tags$hr(),
     
-    downloadButton("downloadData", "Download years out csv file")
-
-    ),
+    #downloadButton("downloadData", "Download years out csv file")
+    
+  ),
     
     dashboardBody(
       
