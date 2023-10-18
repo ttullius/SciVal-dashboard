@@ -185,7 +185,7 @@ ui <- dashboardPage(
         tabPanel("metrics plots", 
                 
                 tags$hr(),
-                 #plotOutput("plotPapersBox"), 
+                 plotOutput("plotPapersBox"), 
                  
                 tags$hr(),
                  plotOutput("plotFWCIBox"), 
