@@ -19,11 +19,11 @@ load_file <- function(path) {
 
 
 
-#######    function to collect the start and end years for a SciVal query.   ##############
+#######    function to collect the start and end years for a SciVal query   ##############
 #######    produces the following dataframe:
 #######       lastUpdated    metricEndYear   metricStartYear    sourceName
 #######    1  2023-06-07          2024            2018           Scopus
-
+#####
 
 get_SciValDates <- function() {
   
