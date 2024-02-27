@@ -24,6 +24,7 @@ load_file <- function(path) {
 #######       lastUpdated    metricEndYear   metricStartYear    sourceName
 #######    1  2023-06-07          2024            2018           Scopus
 #####
+###
 
 get_SciValDates <- function() {
   
