@@ -69,7 +69,8 @@ get_SciValDates <- function() {
 ### use https://curlconverter.com/r/ to generate a SciVal XML call using the curl command from SciVal (e.g. https://dev.elsevier.com/scival.html#!/SciVal_Author_Lookup_API/authorMetrics)
 
     getSciValMetric <- function(author_ID_list, SciValMetric, metric_name, APIkey, instToken)    {
-    headers = c(
+    
+      headers = c(
       `Accept` = 'application/xml'
     )
     
@@ -127,15 +128,46 @@ get_SciValDates <- function() {
         `showAsFieldWeighted` = 'false',
         `indexType` = 'hIndex',
         `apiKey` = APIkey,  
-        `insttoken` = instToken           ### institutional token
+        `insttoken` = instToken           ### BU institutional token, from SciVal
       )
       
       url_xml <- httr::GET(url = 'https://api.elsevier.com/analytics/scival/author/metrics', httr::add_headers(.headers=headers), query = params) 
       raw_xml <- read_xml(url_xml)
       my_xml = xmlParse(raw_xml)
       
+      
+      
+      ###########.   7/2/2024.     the following line no longer works with the SciVal API.   ############
+      
+      ##########.    10/3/2024.    restored the following line - it now seems to work again!!  ###########
+      
       df_years <- xmlToDataFrame(my_xml, colClasses = c(rep("integer",10)), homogeneous = NA, 
                                  collectNames = FALSE, nodes = getNodeSet(my_xml, "//valueByYear"))
+      
+     
+       ############.   7/2/2024.   new SciVal API call.   #################
+      
+      #############.   10/3/2024.  commented out the new API call - gives an error in bind-cols      ############
+      
+     # long_df_years <- xmlToDataFrame(getNodeSet(my_xml, "//valueByYear/entry"))
+     # long_df_years$value <- as.integer(long_df_years$value)
+    #  long_df_years$key <- as.integer(long_df_years$key)
+    #  as_tibble(long_df_years)
+      
+      
+    #  df_years <-
+    #    long_df_years %>%
+    #    group_by(key) %>%
+    #    mutate(row = row_number()) %>%
+    #    pivot_wider(names_from = key,
+                    #values_from = value
+    #    ) %>%
+    #    select(-row)
+      
+      
+      ############.   7/2/2024.   END new SciVal API call.   #################
+      
+      
       df_id <- xmlToDataFrame(my_xml, colClasses = c("numeric"), homogeneous = NA,
                               collectNames = FALSE, nodes = getNodeSet(my_xml, "//id"))
       df_names <- xmlToDataFrame(my_xml, colClasses = c("character"), homogeneous = NA,

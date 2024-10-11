@@ -27,7 +27,7 @@ library(viridis)
 library(DescTools)
 
 
-############      SOURCE HELPER FUNCTIONS   #######################
+############      SOURCE HELPER FUNCTIONS FROM helpers.R   #######################
 
 source("helpers.R")
 
@@ -95,11 +95,11 @@ ui <- dashboardPage(
                                         "Entrepreneur" = "Entrepreneur"), 
                          selected = "Academia"
        )
-    #,
+    ,
    
-     #tags$hr(),
+     tags$hr(),
     
-    #downloadButton("downloadData", "Download years out csv file")
+    downloadButton("downloadData", "Download dataframe as a csv file")
     
   ),
     
@@ -140,7 +140,7 @@ ui <- dashboardPage(
       
       fluidRow(
         
-        h2("past 10 years (2013-2022)", align = "center"),
+        h2("past 10 years (2014-2023)", align = "center"),
         
           infoBoxOutput("citations_mean"),
           infoBoxOutput("fwci_mean"),
@@ -174,9 +174,9 @@ ui <- dashboardPage(
                  )
                  ),
         
-        #tabPanel("test", DT::dataTableOutput("testTable")),
+        tabPanel("test", DT::dataTableOutput("testTable")),
         
-        #tabPanel("test2", DT::dataTableOutput("testTable2")),
+        tabPanel("test2", DT::dataTableOutput("testTable2")),
         
         tabPanel("trainees", DT::dataTableOutput("traineesMetricsTable")),
        
@@ -408,7 +408,7 @@ server <- function(input, output) {
   
   output$program_h_index <- renderInfoBox({
     infoBox(
-      "BU Bioinformatics Program H-index", paste0(358), 
+      "BU Bioinformatics Program H-index", paste0(364), 
       icon = icon("users"),
       color = "red"
     )
@@ -513,12 +513,17 @@ server <- function(input, output) {
   
   APIkey <- reactive ({
     
+  #({
+    
     req(input$APIkey)
     APIkey <- input$APIkey
     
   })
   
+  
   instToken <- reactive ({
+    
+    #({
     
     req(input$instToken)
     instToken <- input$instToken
@@ -526,12 +531,12 @@ server <- function(input, output) {
   })
   
   
-  ##############  SciVal throws an error if the number of Scopus ID's in the request is >100   ###       
+  ##############  SciVal throws an error if the number of Scopus ID's in the API request is >100   ###       
   ##############  Check how many trainees are listed in the trainee metadata file (nrow = number of rows in the dataframe). 
   ##############  If >200, subset into three groups of trainees.  #########
   ##############  If >101 and <200, subset into two groups of trainees.  #########
   ##############  If <101, make a single group of trainees
-  ##############  Combine the trainee group(s) into a list, trainee_list(), which is the input to code for making Scopus ID list   ####### 
+  ##############  Combine the trainee group(s) into a list, trainee_list(), which is the input to the code for making lists of Scopus ID's   ####### 
   
   trainee_list <- reactive ({
     
@@ -568,14 +573,16 @@ server <- function(input, output) {
   
   metrics_df <- reactive ({
     
-##############  produce dataframes for each SciVal metric of interest. 
+##############  produce a dataframe for each SciVal metric of interest, combine into one dataframe, and merge with trainee metadata datafame
 ##############  Here are four example metrics - more can easily be added! 
 ##############  uses functions in helpers.R
     
     
     SciValMetric <-  "ScholarlyOutput"
-    metric_name <- "number_of_papers"
-    full_df_scholarly_output <- makeSciValMetricDF(ID_list(), num_rows(), APIkey = APIkey(), instToken = instToken(), SciValMetric = "ScholarlyOutput", metric_name = "number_of_papers")
+    #metric_name <- "number_of_papers"
+    metric_name <- "papers_past_10_years"
+    #full_df_scholarly_output <- makeSciValMetricDF(ID_list(), num_rows(), APIkey = APIkey(), instToken = instToken(), SciValMetric = "ScholarlyOutput", metric_name = "number_of_papers")
+    full_df_scholarly_output <- makeSciValMetricDF(ID_list(), num_rows(), APIkey = APIkey(), instToken = instToken(), SciValMetric = "ScholarlyOutput", metric_name = "papers_past_10_years")
     
     
     SciValMetric <-  "FieldWeightedCitationImpact"
@@ -607,7 +614,9 @@ server <- function(input, output) {
     metrics_df <- metrics_df |> 
       mutate(across(all_of(factor_list), ~as.factor(.)))
     
-    double_list <- c('number_of_papers', 'number_of_citations', 'FWCI', 'H_index')
+   
+    #double_list <- c('number_of_papers', 'number_of_citations', 'FWCI', 'H_index')
+    double_list <- c('papers_past_10_years', 'number_of_citations', 'FWCI', 'H_index')
     metrics_df <- metrics_df |> 
       mutate(across(all_of(double_list), ~as.double(.)))
     
@@ -626,7 +635,8 @@ server <- function(input, output) {
     
     metrics_df() |> 
       rowwise() |> 
-      mutate(total_papers = sum(c_across(starts_with("2")), number_of_papers, na.rm=T))
+      #mutate(total_papers = sum(c_across(starts_with("2")), papers_past_10_years, na.rm=T))
+      mutate(total_papers = sum(c_across(starts_with("2")), na.rm=T))
     
   }) 
     
@@ -652,14 +662,16 @@ server <- function(input, output) {
      papers_all_years_df <- makeSciValPapersAllYearsDF(ID_list(), num_rows(), APIkey(), instToken())
      
      papers_all_years_df <- Trainees() |> 
-       inner_join(papers_all_years_df, by="id") |> 
+       #inner_join(papers_all_years_df, by="id") |> 
+       left_join(papers_all_years_df, by = "id", suffix = c("", ".y")) |>
+       select(-ends_with(".y")) |>
        select(-name)
      
      metric_list <- c('id', 'gender', 'fellowship', 'job')
      
      papers_all_years_df <- papers_all_years_df |> 
-       mutate(across(all_of(metric_list), ~as.factor(.))) |>
-       mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, .)))
+       mutate(across(all_of(metric_list), ~as.factor(.))) |> 
+       mutate(across(where(is.numeric), ~ifelse(is.na(.), 0, .)))
      
    })   
   
@@ -941,35 +953,64 @@ server <- function(input, output) {
    
   output$testTable <- DT::renderDataTable({
     
+    #Trainees()
+    
     papers_all_years_df()
+    #allPapers_summarised()
+    #allPapers()
+    #tidy_allPapers()
+    
+    #papers_years_out_df()
+    #papers_years_out_all_trainees()
+    #papers_years_out_summarised_df
+    #tidy_allPapers()
+    
+    #metrics_df()
+    #all_df_papers_sum()
+    #metrics_summarised()
+    
     #first_author_years_out_df()
     #first_author_total()
     #first_author_summarised()
     #FirstAuthor()
-    #allPapers_summarised()
     #last_corresp_author_years_out_summarised_df()
-    #papers_mean()
-    #papers_years_out_df()
-   #job_locations()
     #last_corresp_author_total()
-    #tidy_allPapers()
-    #allPapers()
-    
-    
+   
+    #papers_mean()
+   
+    #job_locations()
+   
+  
   })
   
   output$testTable2 <- DT::renderDataTable({
     
+    #Trainees()
     
-    papers_years_out_df()
-    #papers_years_out_summarised_df()
     #papers_all_years_df()
+    #allPapers_summarised()
     #allPapers()
-    #last_corresp_author_total()
-    #first_author_total()
-    #first_author_papers_mean()
+    #tidy_allPapers()
+    
+    #papers_years_out_df()
+    #papers_years_out_all_trainees()
+    #papers_years_out_summarised_df
+    #tidy_allPapers()
+    
+    metrics_df()
+    #all_df_papers_sum()
+    #metrics_summarised()
+    
     #first_author_years_out_df()
-    #last_corresp_author_summarised()
+    #first_author_total()
+    #first_author_summarised()
+    #FirstAuthor()
+    #last_corresp_author_years_out_summarised_df()
+    #last_corresp_author_total()
+    
+    #papers_mean()
+    
+    #job_locations()
     
     
   })
@@ -977,9 +1018,11 @@ server <- function(input, output) {
   ###########      export a csv file containing years out data  #########
   
   output$downloadData <- downloadHandler(
-    filename = "years_out_data.csv",
+    
+    #filename = "years_out_data.csv",
+    filename = "papers_all_years_df.csv",
     content = function(file) {
-      vroom::vroom_write(papers_years_out_df(), file, delim = ",")
+      vroom::vroom_write(papers_all_years_df(), file, delim = ",")
     }
   )
   
@@ -989,7 +1032,8 @@ server <- function(input, output) {
       select(-id, -first, -starts_with("2"), -zip_code, -additional_position) |>
       #select(-id, -starts_with("2"), -zip_code, -additional_position) |>
       mutate(across(c('FWCI', 'time_to_degree'), ~round(.x, 1))) |>
-      rename("first" = first_name, "last" = author, "cohort" = enter_date, "citations" = number_of_citations, "H-index" = H_index, "number of papers" = number_of_papers)
+      #rename("first" = first_name, "last" = author, "cohort" = enter_date, "citations" = number_of_citations, "H-index" = H_index, "number of papers" = number_of_papers)
+      rename("first" = first_name, "last" = author, "cohort" = enter_date, "citations" = number_of_citations, "H-index" = H_index, "papers past 10 years" = papers_past_10_years)
    
  })
 
